@@ -1,0 +1,5 @@
+username: CarboncopiesFoundation
+password: qRRxx653VVfxbqK
+connection string format: mongodb+srv://CarboncopiesFoundation:<password>@carboncopiestest.d8j5cyu.mongodb.net/test
+connection string: mongodb+srv://CarboncopiesFoundation:qRRxx653VVfxbqK@carboncopiestest.d8j5cyu.mongodb.net/test
+
