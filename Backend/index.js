@@ -19,4 +19,3 @@ app.use('/api/milestones', milestones);
 // app.get('/', (req, res) => {
 //     res.send('Hello World');
 // }); //working
-
