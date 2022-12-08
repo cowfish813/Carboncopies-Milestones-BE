@@ -13,11 +13,12 @@ const MilestoneSchema = Schema({
     }, 
 
     previous: {
-        type: Array
+        type: Map
     },
     
     children: {
-        type: Array
+        type: Map,
+        of: String
     },
 
     // author: {
