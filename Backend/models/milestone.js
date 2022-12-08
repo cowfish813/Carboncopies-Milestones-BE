@@ -13,7 +13,8 @@ const MilestoneSchema = Schema({
     }, 
 
     previous: {
-        type: Map
+        type: Map,
+        of: String
     },
     
     children: {

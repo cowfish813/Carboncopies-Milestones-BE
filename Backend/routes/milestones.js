@@ -65,5 +65,3 @@ router.patch('/:question_id', (req, res) => {
 
     Milestone.findOneAndUpdate({_id: req.params.milestone_id})
 })
-
-export const milestones = router;
