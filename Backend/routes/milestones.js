@@ -1,18 +1,18 @@
 import express from 'express';
-import {Milestone} from '../models/milestone.js';
+import { Milestone } from '../models/milestone.js';
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    Milestone.find()
-        .then(milestones => {
-            console.log("work");
-            res.json(milestones)})
-        .catch(err => {
-            console.log("err");
-            res.status(404).json(err)});
+router.get('/', async (req, res) => {
+    const milestones = await Milestone.find()
+
+    try {
+        res.json(milestones)
+    } catch (err) {
+        res.status(404).json(err);
+    }
 })
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
     const newMilestone = new Milestone({
         purpose: req.body.purpose,
         content: req.body.content,
@@ -26,25 +26,28 @@ router.post('/', (req, res) => {
         nearFinished: req.body.nearFinished,
         fullHumanWBE: req.body.fullHumanWBE
     })
-    console.log(newMilestone);
 
-    newMilestone.save()
-        .then(milestone => res.json(milestone))
-        .catch(err => {
-            console.log('err');
-            res.status(404).json(err)});
+    const milestone = await newMilestone.save()
+    try {
+        res.json(milestone)
+    } catch {
+        res.status(404).json(err)
+    }
 })
 
-router.delete('/:milestone_id', (req, res) => { //delete whole milestone
-    Milestone.findOneAndDelete({_id: req.params.milestone_id})
-        .then(milestone => {
-            console.log(`${milestone} DELETED`);
-            res.json({_id: milestone._id})
-        })
-        .catch(err => res.status(404).json(err));
+router.delete('/:milestone_id',async (req, res) => { //delete whole milestone
+    const milestone = await Milestone.findOneAndDelete({_id: req.params.milestone_id})
+    try {
+        res.json({_id: milestone._id});
+    } catch (err) {
+        res.status(404).json(err);
+    }
+
+    //what if parent was deleted? 
+        //i'll6392859e553e5e3c810dd80d need to programatically patch them out...
 })
 
-router.patch('/:milestone_id', (req, res) => {
+router.patch('/:milestone_id', async (req, res) => {
     const patchedMilestone = {
         purpose: req.body.purpose,
         content: req.body.content,
@@ -58,20 +61,18 @@ router.patch('/:milestone_id', (req, res) => {
         nearFinished: req.body.nearFinished,
         fullHumanWBE: req.body.fullHumanWBE
     }
-
-    console.log(req.params.milestone_id)
     
-    Milestone
+    const patched = await Milestone
         .findOneAndUpdate(
             {_id: req.params.milestone_id}, 
             patchedMilestone, 
             { new: true })
-        .then(pms => {
-            console.log(pms, 'successful?')
-            res.json({_id: milestone._id})
-        })
-        .catch(err => res.status(404).json(err));
 
+    try {
+        res.json({_id: milestone._id})
+    } catch (err) {
+        res.status(404).json(err)
+    }
 })
 
 export const milestones = router;
