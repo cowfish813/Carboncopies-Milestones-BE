@@ -29,21 +29,27 @@ const MilestoneSchema = Schema({
     presentState: {
         type: String
     },
+    
     nearFuture: {
         type: String
     },
+
     lessThanHalfway: {
         type: String
     },
+
     halfway: {
         type: String
     },
+
     overHalfway: {
         type: String
     },
+
     nearFinished: {
         type: String
     },
+
     fullHumanWBE: {
         type: String
     }

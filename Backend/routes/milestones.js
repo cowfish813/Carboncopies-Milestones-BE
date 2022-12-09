@@ -44,11 +44,7 @@ router.delete('/:milestone_id', (req, res) => { //delete whole milestone
         .catch(err => res.status(404).json(err));
 })
 
-router.patch('/:question_id', (req, res) => {
-    //delete one relationship(s) in selected node
-        // child and/or previous
-            // multiple patchjes?
-    //change one piece of content
+router.patch('/:milestone_id', (req, res) => {
     const patchedMilestone = {
         purpose: req.body.purpose,
         content: req.body.content,
@@ -63,7 +59,19 @@ router.patch('/:question_id', (req, res) => {
         fullHumanWBE: req.body.fullHumanWBE
     }
 
-    Milestone.findOneAndUpdate({_id: req.params.milestone_id})
+    console.log(req.params.milestone_id)
+    
+    Milestone
+        .findOneAndUpdate(
+            {_id: req.params.milestone_id}, 
+            patchedMilestone, 
+            { new: true })
+        .then(pms => {
+            console.log(pms, 'successful?')
+            res.json({_id: milestone._id})
+        })
+        .catch(err => res.status(404).json(err));
+
 })
 
 export const milestones = router;
