@@ -11,20 +11,34 @@ const MilestoneSchema = Schema({
     content: {
         type: String,
     }, 
-
-    previous: {
-        type: Map,
-        of: String
-    },
     
+    // 
+
+    // previous: {
+    //     type: Map,
+    //     of: String
+    // },
+    
+    // children: {
+    //     type: Map,
+    //     of: String
+    // }, //should i key in and edit on backend with each delete?
+        
+    // or should it be a nested object starting with parents?
     children: {
-        type: Map,
-        of: String
+        type: [ this ],
+        default: {}
     },
+
+    next: {
+        type: [ this ],
+        default: {}
+    },
+    // 
 
     // author: {
     //     type: String,
-    // },
+    // }, //figure out after OAuth
 
     presentState: {
         type: String
