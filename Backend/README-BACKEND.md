@@ -12,7 +12,7 @@ To start Backend Server from terminal
 ## Tech Stack 
 Node.js, Express.js, MongoDB
 # ODM
-Mongoose
+
 
 # Making File Imports
 "type": "module" is added to package.json, allows us to use ES6 syntax with import statements instead of require
