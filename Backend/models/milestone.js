@@ -19,7 +19,9 @@ class Milestone extends Model {
                 labels:['SUBMILESTONE'],
                 target: Milestone
             }),
-            content: Field.String(),
+            effort: Field.String(),
+            property: Field.String(),
+
             presentState: Field.String(),
             nearFuture: Field.String(),
             lessThanHalfway: Field.String(),
@@ -29,69 +31,17 @@ class Milestone extends Model {
             fullHumanWBE: Field.String(),
             created_at: Field.DateTime({
                 default: 'NOW'
+            }),
+            updated_at: Field.DateTime({
+                default: 'NOW'
             })
         }
         super(values, labels, attributes);
     }
 }
 
-class Role extends Model {
-  constructor (values, state = { language: 'en_US' }) {
-    const labels = ['Role']
-    const attributes = {
-      key: Field.String({
-        required: true,
-        set: (value) => {
-          return value.toUpperCase()
-        },
-        get: (value) => {
-          return `key-${value}`
-        }
-      }),
-      name: Field.Relationship({
-        with: true,
-        labels: ['TRANSLATE'],
-        target: Text,
-        filter_relationship: {
-          language: state.language
-        }
-      })
-    }
-    super(values, labels, attributes)
-  }
-}
+export default Milestone;
 
-class User extends Model {
-  constructor (values) {
-    const labels = ['User']
-    const attributes = {
-      name: Field.String(),
-      language: Field.String({
-        valid: ['pt_BR', 'en_US']
-      }),
-      email: Field.String({
-        max_length: 255,
-        required: true
-      }),
-      password: Field.Hash(),
-      created_at: Field.DateTime({
-        default: 'NOW'
-      }),
-      role: Field.Relationship({
-        labels: ['HAS_ROLE'],
-        target: Role
-      }),
-      friends: Field.Relationships({
-        labels: ['FRIENDSHIP'],
-        target: User,
-        attributes: {
-          intimacy: Field.String()
-        }
-      })
-    }
-    super(values, labels, attributes)
-  }
-}
 //for each milestone
     //what kind of intitiatives toward that milestone?
     //prject to scan complete fruit fly brain

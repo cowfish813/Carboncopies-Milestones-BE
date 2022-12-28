@@ -1,9 +1,10 @@
 import express from 'express';
-import { Milestone } from '../models/milestone.js';
+import Milestone from '../models/milestone.js';
 const router = express.Router();
 
+
 router.get('/', async (req, res) => {
-    const milestones = await Milestone.find()
+    const milestones = await Milestone.findAll();
 
     try {
         res.json(milestones)
@@ -15,9 +16,9 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     const newMilestone = new Milestone({
         purpose: req.body.purpose,
-        content: req.body.content,
-        children: req.body.children,
-        previous: req.body.previous,
+        property: req.body.property,
+        effort: req.body.effort,
+
         presentState: req.body.presentState,
         nearFuture: req.body.nearFuture,
         lessThanHalfway: req.body.lessThanHalfway,
@@ -25,10 +26,6 @@ router.post('/', async (req, res) => {
         overHalfway: req.body.overHalfway,
         nearFinished: req.body.nearFinished,
         fullHumanWBE: req.body.fullHumanWBE,
-        // next/children: req.body.next,
-            //store bigger collection of nodes?
-            //
-
     })
 
     const milestone = await newMilestone.save()
@@ -40,46 +37,41 @@ router.post('/', async (req, res) => {
 });
 
 router.delete('/:milestone_id',async (req, res) => { //delete whole milestone
-    const milestone = await Milestone.findOneAndDelete({_id: req.params.milestone_id})
+    const milestone = await Milestone.findByID({_id: req.params.milestone_id});
+
+    if (milestone) {
+        await milestone.delete();
+    } else {
+        return 'Server Message: milestone not found';
+    }
+
     try {
         res.json({_id: milestone._id});
     } catch (err) {
         res.status(404).json(err);
     }
-
-    //what if previous or children of node were deleted? 
-        //i'll need to programatically patch them out...
 });
 
 router.patch('/:milestone_id', async (req, res) => {
-    const patchedMilestone = {
-        purpose: req.body.purpose,
-        content: req.body.content,
-        children: req.body.children,
-        previous: req.body.previous,
-        presentState: req.body.presentState,
-        nearFuture: req.body.nearFuture,
-        lessThanHalfway: req.body.lessThanHalfway,
-        halfway: req.body.halfway,
-        overHalfway: req.body.overHalfway,
-        nearFinished: req.body.nearFinished,
-        fullHumanWBE: req.body.fullHumanWBE
-    }
-    
-    await Milestone.findOneAndUpdate(
-        {_id: req.params.milestone_id}, 
-        patchedMilestone, 
-        { new: true }
-    )
+    const milestone = await Milestone.findByID({_id: req.params.milestone_id});
+    milestone.purpose = req.body.purpose,
+    milestone.property = req.body.property,
+    milestone.effort = req.body.effort,
+    milestone.presentState = req.body.presentState,
+    milestone.nearFuture = req.body.nearFuture,
+    milestone.lessThanHalfway = req.body.lessThanHalfway,
+    milestone.halfway = req.body.halfway,
+    milestone.overHalfway = req.body.overHalfway,
+    milestone.nearFinished = req.body.nearFinished,
+    milestone.fullHumanWBE = req.body.fullHumanWBE,
+    milestone.updated_at = Date.now()
+    await milestone.save();
 
     try {
         res.json({_id: milestone._id})
     } catch (err) {
         res.status(404).json(err)
     }
-
-    //what if a child or previous node is deleted?
-        // do i check children/previous and make the delete/re-entry for pre-existing?
 });
 
 export const milestones = router;

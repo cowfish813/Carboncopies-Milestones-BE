@@ -4,6 +4,8 @@ import path from 'path';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
 
+import { milestones } from './routes/milestones.js';
+
 import { uri, user, password } from './config/keys.js';
 import neo4j from 'neo4j-driver';
 import { getConnection } from 'neo4j-node-ogm';
@@ -13,6 +15,7 @@ const port = process.env.PORT || 5001;
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 app.use(express.json());
+app.use('/api/milestones', milestones);
 
 const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
 
