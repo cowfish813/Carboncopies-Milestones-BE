@@ -1,8 +1,10 @@
 import express from 'express';
-// import mongoose from 'mongoose';
-// import { milestones } from './routes/milestones.js';
-import { uri, user, password } from './config/keys.js'
 
+import path from 'path';
+import logger from 'morgan';
+import bodyParser from 'body-parser';
+
+import { uri, user, password } from './config/keys.js';
 import neo4j from 'neo4j-driver';
 import { getConnection } from 'neo4j-node-ogm';
 
@@ -12,16 +14,13 @@ const port = process.env.PORT || 5001;
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 app.use(express.json());
 
-// app.use('/api/milestones', milestones);
+const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
 
-// app.get('/', (req, res) => {
-//     res.send('Hello World');
-// }); //working
 
-// (async() => {
+
+
+// (async() => {    
 //     // To learn more about the driver: https://neo4j.com/docs/javascript-manual/current/client-applications/#js-driver-driver-object
-//     const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
-
 //     try {
 //         const person1Name = 'Alice';
 //         const person2Name = 'David';
@@ -34,7 +33,6 @@ app.use(express.json());
 //         // Don't forget to close the driver connection when you're finished with it.
 //         await driver.close();
 //     }
-
 
 //     async function createFriendship (driver, person1Name, person2Name) {
 //         // To learn more about sessions: https://neo4j.com/docs/javascript-manual/current/session-api/
@@ -50,7 +48,6 @@ app.use(express.json());
 //             const writeResult = await session.executeWrite(tx =>
 //                 tx.run(writeQuery, { person1Name, person2Name })
 //             );
-
 //             // Check the write results.
 //             writeResult.records.forEach(record => {
 //                 const person1Node = record.get('p1');
@@ -65,14 +62,13 @@ app.use(express.json());
 //         }
 //     }
 
-
 //     async function findPerson(driver, personName) {
 //         const session = driver.session({ database: 'neo4j' });
-
 //         try {
 //             const readQuery = `MATCH (p:Person)
 //                             WHERE p.name = $personName
 //                             RETURN p.name AS name`;
+            
 //             const readResult = await session.executeRead(tx =>
 //                 tx.run(readQuery, { personName })
 //             );
@@ -86,3 +82,17 @@ app.use(express.json());
 //         }
 //     }
 // })();
+
+// const database = getConnection()
+// try {
+//   const session = database.session()
+//   const result = await session.run('MATCH (users:Users {name : $nameParam}) RETURN users', {
+//     nameParam: 'Natam'
+//   })
+//   result.records.forEach(record => {
+//     console.log(record.get('name'))
+//   })
+//   session.close()
+// } catch(e) {
+//   console.log("hello world =>", e)
+// }

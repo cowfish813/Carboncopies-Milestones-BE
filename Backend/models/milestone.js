@@ -2,11 +2,95 @@ import {Model, Field} from "neo4j-node-ogm";
 
 class Milestone extends Model {
     constructor(values) {
-        const labels = ['Text']
+        const labels = ['Milestone']
         const attributes = {
-            
+            purpose: Field.String({
+                required: true
+            }),
+            nextMilestone: Field.Relationships({ //next
+                labels:['NEXTMILESTONE'],
+                target: Milestone
+            }),
+            prevMilestone: Field.Relationships({ //prev
+                labels:['PREVMILESTONE'],
+                target: Milestone
+            }),
+            subMilestone: Field.Relationships({ //child relationships
+                labels:['SUBMILESTONE'],
+                target: Milestone
+            }),
+            content: Field.String(),
+            presentState: Field.String(),
+            nearFuture: Field.String(),
+            lessThanHalfway: Field.String(),
+            halfway: Field.String(),
+            overHalfway: Field.String(),
+            nearFinished: Field.String(),
+            fullHumanWBE: Field.String(),
+            created_at: Field.DateTime({
+                default: 'NOW'
+            })
         }
+        super(values, labels, attributes);
     }
+}
+
+class Role extends Model {
+  constructor (values, state = { language: 'en_US' }) {
+    const labels = ['Role']
+    const attributes = {
+      key: Field.String({
+        required: true,
+        set: (value) => {
+          return value.toUpperCase()
+        },
+        get: (value) => {
+          return `key-${value}`
+        }
+      }),
+      name: Field.Relationship({
+        with: true,
+        labels: ['TRANSLATE'],
+        target: Text,
+        filter_relationship: {
+          language: state.language
+        }
+      })
+    }
+    super(values, labels, attributes)
+  }
+}
+
+class User extends Model {
+  constructor (values) {
+    const labels = ['User']
+    const attributes = {
+      name: Field.String(),
+      language: Field.String({
+        valid: ['pt_BR', 'en_US']
+      }),
+      email: Field.String({
+        max_length: 255,
+        required: true
+      }),
+      password: Field.Hash(),
+      created_at: Field.DateTime({
+        default: 'NOW'
+      }),
+      role: Field.Relationship({
+        labels: ['HAS_ROLE'],
+        target: Role
+      }),
+      friends: Field.Relationships({
+        labels: ['FRIENDSHIP'],
+        target: User,
+        attributes: {
+          intimacy: Field.String()
+        }
+      })
+    }
+    super(values, labels, attributes)
+  }
 }
 //for each milestone
     //what kind of intitiatives toward that milestone?
@@ -87,33 +171,7 @@ class Milestone extends Model {
 //     // },
 
 
-//     presentState: {
-//         type: String
-//     },
-    
-//     nearFuture: {
-//         type: String
-//     },
 
-//     lessThanHalfway: {
-//         type: String
-//     },
-
-//     halfway: {
-//         type: String
-//     },
-
-//     overHalfway: {
-//         type: String
-//     },
-
-//     nearFinished: {
-//         type: String
-//     },
-
-//     fullHumanWBE: {
-//         type: String
-//     }
 
 // }, {timestamps: true});
 
