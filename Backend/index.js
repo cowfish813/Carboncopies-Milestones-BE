@@ -1,13 +1,13 @@
 import express from 'express';
-
-import path from 'path';
-import logger from 'morgan';
-import bodyParser from 'body-parser';
-
-import { milestones } from './routes/milestones.js';
-
-import { uri, user, password } from './config/keys.js';
 import neo4j from 'neo4j-driver';
+import { milestones } from './routes/milestones.js';
+import { uri, user, password } from './config/keys.js';
+
+// import path from 'path';
+// import logger from 'morgan';
+// import bodyParser from 'body-parser';
+
+
 import { getConnection } from 'neo4j-node-ogm';
 
 const app = express();
@@ -17,7 +17,32 @@ app.listen(port, () => console.log(`Server is running on port ${port}`));
 app.use(express.json());
 app.use('/api/milestones', milestones);
 
-const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
+
+// app.use(() => neo4j);
+
+app.get('/',  (req, res) => {
+    const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
+    const session = driver.session();
+    // Create Driver session
+    // const session = req.driver.session();
+    const cypher = 'MATCH (n) RETURN count(n) as count';
+
+    session.run(cypher)
+        .then(result => {
+            // On result, get count from first record
+            const count = result.records[0].get('count');
+            // Send response
+            res.send({count: count.toNumber()});
+        })
+        .catch(e => {
+            // Output the error
+            res.status(500).send(e);
+        })
+        .then(() => {
+            // Close the session
+            return session.close();
+        });
+});
 
 
 
