@@ -1,9 +1,9 @@
 import express from 'express';
 import neo4j from 'neo4j-driver';
 import { milestones } from './routes/milestones.js';
-import { uri, user, password } from './config/keys.js';
+import { uri, user, password, protocol, host, neo4jPort } from './config/keys.js';
 import { getConnection } from 'neo4j-node-ogm';
-// const database = getConnection();
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 import logger from 'morgan';
@@ -26,44 +26,49 @@ app.use(bodyParser.urlencoded({ extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const driver = new neo4j.driver(uri, neo4j.auth.basic(user, password));
-const session = driver.session();
-// const database = getConnection();
-// const session = database.session();
+// const session = driver.session();
 
-app.get('/',  (req, res) => {
-    // Create Driver session
-    const cypher = 'MATCH (n) RETURN *';
+const database = getConnection();
+const session = database.session();
+const cypher = 'MATCH (n) RETURN *';
 
-    session
-        .run(cypher)
-        .then(result => {
-            const milestoneArr = [];
-            // let i = 0;
-            result.records.forEach(record => {
-                milestoneArr.push({
-                    id: record._fields[0].identity.low,
-                    purpose: record._fields[0].properties.purpose,
-                    //delete name when we get real stuff going
-                    name: record._fields[0].properties.name,
-                })
-                // console.log(i+=1,record._fields[0].properties)
-            })   
-            // res.render('index', {
-            //     milestone: milestoneArr,
-            // })
-            res.send(milestoneArr)
+// const {
+//     NEO4J_PROTOCOL = protocol,
+//     NEO4J_HOST = host,
+//     NEO4J_PORT = neo4jPort,
+//     NEO4J_USERNAME = user,
+//     NEO4J_PASSWORD = password,
+// } = process.env
+
+process.env.NEO4J_DATABASE = 'neo4j',
+process.env.NEO4J_USERNAME = user;
+process.env.NEO4J_PASSWORD = password;
+process.env.NEO4J_PROTOCOL= protocol;
+process.env.NEO4J_HOST = host;
+process.env.NEO4J_PORT= neo4jPort;
+
+app.get('/', async  (req, res) => {
+    try {
+        const result = await session.run(cypher)
+        const milestoneArr = [];
+        result.records.forEach(record => {
+            milestoneArr.push({
+                id: record._fields[0].identity.low,
+                purpose: record._fields[0].properties.purpose,
+                //delete name when we get real stuff going
+                name: record._fields[0].properties.name,
+            })
         })
-        .catch(e => {
-            // Output the error
-            console.log(e);
-            res.status(500).send(e);
-        })
-        // .then(() => {
-        //     // Close the session
-        //     return session.close();
-        // });
-});
-
+        // res.render('index', {
+        //     milestone: milestoneArr,
+        // })
+        res.send(milestoneArr);
+        session.close();
+    } catch(e) {
+        console.log(e);
+        res.status(500).send(e);
+    }
+})
 
 
 

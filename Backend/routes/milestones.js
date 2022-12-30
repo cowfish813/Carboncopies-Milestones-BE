@@ -1,5 +1,11 @@
 import express from 'express';
 import Milestone from '../models/milestone.js';
+
+import { uri, user, password } from '../config/keys.js';
+import neo4j from 'neo4j-driver';
+const driver = new neo4j.driver(uri, neo4j.auth.basic(user, password));
+const session = driver.session();
+
 const router = express.Router();
 
 
@@ -14,7 +20,8 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    const newMilestone = new Milestone({
+    console.log(process.env);
+    const newMilestone = await new Milestone({
         purpose: req.body.purpose,
         property: req.body.property,
         effort: req.body.effort,
@@ -27,17 +34,18 @@ router.post('/', async (req, res) => {
         nearFinished: req.body.nearFinished,
         fullHumanWBE: req.body.fullHumanWBE,
     })
-    // console.log(newMilestone);
     if (!newMilestone.isValid()) console.log(newMilestone.errors);
     
-    
+    session
     try {
+        // console.log(newMilestone);
         const milestone = await newMilestone.save();
         res.json(milestone);
     } catch (err) {
         console.log(err);
         res.status(404).json(err);
     }
+    await session.close
 });
 
 router.delete('/all', async (req, res) => { //delete db
