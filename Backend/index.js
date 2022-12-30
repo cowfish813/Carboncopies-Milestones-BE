@@ -1,9 +1,10 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import neo4j from 'neo4j-driver';
-import { milestones } from './routes/milestones.js';
+// import { milestones } from './routes/milestones.js';
 import { uri, user, password, protocol, host, neo4jPort } from './config/keys.js';
-import { getConnection } from 'neo4j-node-ogm';
-
+import Neode from 'neode';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import logger from 'morgan';
@@ -13,7 +14,7 @@ const app = express();
 const port = process.env.PORT || 5001;
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 app.use(express.json());
-app.use('/api/milestones', milestones);
+// app.use('/api/milestones', milestones);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,26 +27,12 @@ app.use(bodyParser.urlencoded({ extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const driver = new neo4j.driver(uri, neo4j.auth.basic(user, password));
-// const session = driver.session();
+const session = driver.session();
+// const instance = new Neode(uri, user, password);
+const instance = Neode.fromEnv();
 
-const database = getConnection();
-const session = database.session();
 const cypher = 'MATCH (n) RETURN *';
 
-// const {
-//     NEO4J_PROTOCOL = protocol,
-//     NEO4J_HOST = host,
-//     NEO4J_PORT = neo4jPort,
-//     NEO4J_USERNAME = user,
-//     NEO4J_PASSWORD = password,
-// } = process.env
-
-process.env.NEO4J_DATABASE = 'neo4j',
-process.env.NEO4J_USERNAME = user;
-process.env.NEO4J_PASSWORD = password;
-process.env.NEO4J_PROTOCOL= protocol;
-process.env.NEO4J_HOST = host;
-process.env.NEO4J_PORT= neo4jPort;
 
 app.get('/', async  (req, res) => {
     try {
