@@ -1,46 +1,51 @@
-import {Model, Field} from "neo4j-node-ogm";
+const Neode = require('neode');
+const instance = Neode.fromEnv();
 
-class Milestone extends Model {
-    constructor(values) {
-        const labels = ['Milestone']
-        const attributes = {
-            purpose: Field.String({
-                required: true
-            }),
-            nextMilestone: Field.Relationships({ //next
-                labels:['NEXTMILESTONE'],
-                target: Milestone
-            }),
-            prevMilestone: Field.Relationships({ //prev
-                labels:['PREVMILESTONE'],
-                target: Milestone
-            }),
-            subMilestone: Field.Relationships({ //child relationships
-                labels:['SUBMILESTONE'],
-                target: Milestone
-            }),
-            effort: Field.String(),
-            property: Field.String(),
+instance.schema.install()
+    .then(() => console.log('Schema installed!'))
 
-            presentState: Field.String(),
-            nearFuture: Field.String(),
-            lessThanHalfway: Field.String(),
-            halfway: Field.String(),
-            overHalfway: Field.String(),
-            nearFinished: Field.String(),
-            fullHumanWBE: Field.String(),
-            created_at: Field.DateTime({
-                default: 'NOW'
-            }),
-            updated_at: Field.DateTime({
-                default: 'NOW'
-            })
-        }
-        super(values, labels, attributes);
-    }
-}
+const Milestone = instance.model(
+    'Milestone', {
+    milestone_id: {
+        primary: true,
+        type: 'uuid',
+        required: true
+    },
+    purpose: {
+        type: 'string',
+        index: true
+    },
+    nextMilestone: {
+        type: 'relationships',
+        target: 'Milestone',
+        relationship: 'NEXT_MILESTONE'
+    },
+    prevMilestone: {
+        type: 'relationships',
+        target: 'Milestone',
+        relationship: 'PREVIOUS_MILESTONE'
+    },
+    subMilestone: {
+        type: 'relationships',
+        target: 'Milestone',
+        relationship: 'SUB'
+    },
 
-export default Milestone;
+    effort: 'string',
+    property: 'string',
+    presentState: 'string',
+    nearFuture: 'string',
+    lessThanHalfway: 'string',
+    halfway: 'string',
+    overHalfway: 'string',
+    nearFinished: 'string',
+    fullHumanWBE: 'string',
+
+    created_at: 'datetime',
+    updated_at: 'datetime'
+})
+
+module.exports = Milestone;
 
 //for each milestone
     //what kind of intitiatives toward that milestone?

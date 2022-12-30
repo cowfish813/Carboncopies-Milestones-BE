@@ -1,43 +1,42 @@
-import * as dotenv from 'dotenv';
+const dotenv = require('dotenv');
 dotenv.config();
-import express from 'express';
-import neo4j from 'neo4j-driver';
-// import { milestones } from './routes/milestones.js';
-import { uri, user, password, protocol, host, neo4jPort } from './config/keys.js';
-import Neode from 'neode';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import logger from 'morgan';
-import bodyParser from 'body-parser';
+const express = require('express');
+const neo4j = require('neo4j-driver');
+const milestones = require('./routes/milestones.js');
+// const { uri, user, password, protocol, host, neo4jPort } = require('./config/keys.js');
+const Neode = require('neode');
+const path = require('path');
+const { fileURLToPath } = require('url');
+const logger = require('morgan');
+const bodyParser = require('body-parser');
 
 const app = express();
 const port = process.env.PORT || 5001;
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 app.use(express.json());
-// app.use('/api/milestones', milestones);
+app.use('/api/milestones', milestones);
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 //view engine
-app.set('views', path.join(__dirname, 'views')); //set views to view folder
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false}));
-app.use(express.static(path.join(__dirname, 'public')));
+// app.set('views', path.join(__dirname, 'views')); //set views to view folder
+// app.use(logger('dev'));
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: false}));
+// app.use(express.static(path.join(__dirname, 'public')));
 
-const driver = new neo4j.driver(uri, neo4j.auth.basic(user, password));
-const session = driver.session();
-// const instance = new Neode(uri, user, password);
+//Neo4j connection
+// const driver = new neo4j.driver(uri, neo4j.auth.basic(user, password));
 const instance = Neode.fromEnv();
-
 const cypher = 'MATCH (n) RETURN *';
 
-
 app.get('/', async  (req, res) => {
+    const session = driver.session();
     try {
-        const result = await session.run(cypher)
+        const result = await instance.cypher(cypher);
         const milestoneArr = [];
+        // console.log(res.records);
         result.records.forEach(record => {
             milestoneArr.push({
                 id: record._fields[0].identity.low,
@@ -46,15 +45,32 @@ app.get('/', async  (req, res) => {
                 name: record._fields[0].properties.name,
             })
         })
-        // res.render('index', {
-        //     milestone: milestoneArr,
-        // })
         res.send(milestoneArr);
         session.close();
-    } catch(e) {
+    } catch (e) {
         console.log(e);
         res.status(500).send(e);
     }
+    // try {
+    //     const result = await session.run(cypher)
+    //     const milestoneArr = [];
+    //     result.records.forEach(record => {
+    //         milestoneArr.push({
+    //             id: record._fields[0].identity.low,
+    //             purpose: record._fields[0].properties.purpose,
+    //             //delete name when we get real stuff going
+    //             name: record._fields[0].properties.name,
+    //         })
+    //     })
+    //     // res.render('index', {
+    //     //     milestone: milestoneArr,
+    //     // })
+    //     res.send(milestoneArr);
+    //     session.close();
+    // } catch(e) {
+    //     console.log(e);
+    //     res.status(500).send(e);
+    // }
 })
 
 

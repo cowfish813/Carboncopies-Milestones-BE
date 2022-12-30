@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "carboncopies",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "node index.js",
     "start:dev": "nodemon --inspect index.js",

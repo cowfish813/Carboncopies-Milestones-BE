@@ -1,27 +1,26 @@
-import express from 'express';
-import Milestone from '../models/milestone.js';
-
-import { uri, user, password } from '../config/keys.js';
-import neo4j from 'neo4j-driver';
-const driver = new neo4j.driver(uri, neo4j.auth.basic(user, password));
-const session = driver.session();
-
+const express = require('express');
+// const Milestone = require('./models/milestone.js');
+const Neode = require('neode');
+const path = require('path');
+const { fileURLToPath } = require('url');
+const instance = Neode.fromEnv();
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+const Milestone = instance.withDirectory(__dirname +'/models');
 const router = express.Router();
 
-
 router.get('/', async (req, res) => {
-    const milestones = await Milestone.findAll();
-    console.log('get', milestones);
+    // const milestones = await Milestone.findAll();
+    // console.log('get', milestones);
     try {
-        res.json(milestones)
+        // res.json(milestones)
     } catch (err) {
         res.status(404).json(err);
     }
 });
 
 router.post('/', async (req, res) => {
-    console.log(process.env);
-    const newMilestone = await new Milestone({
+    const newMilestone = await instance.create('Milestone', {
         purpose: req.body.purpose,
         property: req.body.property,
         effort: req.body.effort,
@@ -34,61 +33,59 @@ router.post('/', async (req, res) => {
         nearFinished: req.body.nearFinished,
         fullHumanWBE: req.body.fullHumanWBE,
     })
-    if (!newMilestone.isValid()) console.log(newMilestone.errors);
     
-    session
+    await console.log(newMilestone.get('purpose'));
     try {
-        // console.log(newMilestone);
-        const milestone = await newMilestone.save();
-        res.json(milestone);
+        // const milestone = await newMilestone.save();
+        // res.json(milestone);
     } catch (err) {
-        console.log(err);
+        // console.log(err);
         res.status(404).json(err);
     }
-    await session.close
 });
 
 router.delete('/all', async (req, res) => { //delete db
-    const milestones = await Milestone.findAll();
-    await milestones.deleteAll();
+    // const milestones = await Milestone.findAll();
+    // await milestones.deleteAll();
 })
 
 router.delete('/:milestone_id',async (req, res) => { //delete single milestone
-    const milestone = await Milestone.findByID({_id: req.params.milestone_id});
+    // const milestone = await Milestone.findByID({_id: req.params.milestone_id});
 
-    if (milestone) {
-        await milestone.delete();
-    } else {
-        return 'Server Message: milestone not found';
-    }
+    // if (milestone) {
+    //     // await milestone.delete();
+    // } else {
+    //     // return 'Server Message: milestone not found';
+    // }
 
     try {
-        res.json({_id: milestone._id});
+        // res.json({_id: milestone._id});
     } catch (err) {
         res.status(404).json(err);
     }
 });
 
 router.patch('/:milestone_id', async (req, res) => {
-    const milestone = await Milestone.findByID({_id: req.params.milestone_id});
-    milestone.purpose = req.body.purpose,
-    milestone.property = req.body.property,
-    milestone.effort = req.body.effort,
-    milestone.presentState = req.body.presentState,
-    milestone.nearFuture = req.body.nearFuture,
-    milestone.lessThanHalfway = req.body.lessThanHalfway,
-    milestone.halfway = req.body.halfway,
-    milestone.overHalfway = req.body.overHalfway,
-    milestone.nearFinished = req.body.nearFinished,
-    milestone.fullHumanWBE = req.body.fullHumanWBE,
-    milestone.updated_at = Date.now()
-    await milestone.save();
+    // const milestone = await Milestone.findByID({_id: req.params.milestone_id});
+    // milestone.purpose = req.body.purpose,
+    // milestone.property = req.body.property,
+    // milestone.effort = req.body.effort,
+    // milestone.presentState = req.body.presentState,
+    // milestone.nearFuture = req.body.nearFuture,
+    // milestone.lessThanHalfway = req.body.lessThanHalfway,
+    // milestone.halfway = req.body.halfway,
+    // milestone.overHalfway = req.body.overHalfway,
+    // milestone.nearFinished = req.body.nearFinished,
+    // milestone.fullHumanWBE = req.body.fullHumanWBE,
+    // milestone.updated_at = Date.now()
+    // await milestone.save();
 
     try {
-        res.json({_id: milestone._id})
+        // res.json({_id: milestone._id})
     } catch (err) {
         res.status(404).json(err)
     }
 });
 
-export const milestones = router;
+const milestones = router;
+module.exports = milestones;
