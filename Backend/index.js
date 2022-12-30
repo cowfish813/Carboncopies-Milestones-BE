@@ -2,46 +2,66 @@ import express from 'express';
 import neo4j from 'neo4j-driver';
 import { milestones } from './routes/milestones.js';
 import { uri, user, password } from './config/keys.js';
-
-// import path from 'path';
-// import logger from 'morgan';
-// import bodyParser from 'body-parser';
-
-
 import { getConnection } from 'neo4j-node-ogm';
+// const database = getConnection();
+import path from 'path';
+import { fileURLToPath } from 'url';
+import logger from 'morgan';
+import bodyParser from 'body-parser';
 
 const app = express();
 const port = process.env.PORT || 5001;
-
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 app.use(express.json());
 app.use('/api/milestones', milestones);
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// app.use(() => neo4j);
+//view engine
+app.set('views', path.join(__dirname, 'views')); //set views to view folder
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false}));
+app.use(express.static(path.join(__dirname, 'public')));
+
+const driver = new neo4j.driver(uri, neo4j.auth.basic(user, password));
+const session = driver.session();
+// const database = getConnection();
+// const session = database.session();
 
 app.get('/',  (req, res) => {
-    const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
-    const session = driver.session();
     // Create Driver session
-    // const session = req.driver.session();
-    const cypher = 'MATCH (n) RETURN count(n) as count';
+    const cypher = 'MATCH (n) RETURN *';
 
-    session.run(cypher)
+    session
+        .run(cypher)
         .then(result => {
-            // On result, get count from first record
-            const count = result.records[0].get('count');
-            // Send response
-            res.send({count: count.toNumber()});
+            const milestoneArr = [];
+            // let i = 0;
+            result.records.forEach(record => {
+                milestoneArr.push({
+                    id: record._fields[0].identity.low,
+                    purpose: record._fields[0].properties.purpose,
+                    //delete name when we get real stuff going
+                    name: record._fields[0].properties.name,
+                })
+                // console.log(i+=1,record._fields[0].properties)
+            })   
+            // res.render('index', {
+            //     milestone: milestoneArr,
+            // })
+            res.send(milestoneArr)
         })
         .catch(e => {
             // Output the error
+            console.log(e);
             res.status(500).send(e);
         })
-        .then(() => {
-            // Close the session
-            return session.close();
-        });
+        // .then(() => {
+        //     // Close the session
+        //     return session.close();
+        // });
 });
 
 

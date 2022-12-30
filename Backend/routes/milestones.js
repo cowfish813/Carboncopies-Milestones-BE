@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
     const milestones = await Milestone.findAll();
-
+    console.log('get', milestones);
     try {
         res.json(milestones)
     } catch (err) {
@@ -27,16 +27,25 @@ router.post('/', async (req, res) => {
         nearFinished: req.body.nearFinished,
         fullHumanWBE: req.body.fullHumanWBE,
     })
-
-    const milestone = await newMilestone.save()
+    // console.log(newMilestone);
+    if (!newMilestone.isValid()) console.log(newMilestone.errors);
+    
+    
     try {
-        res.json(milestone)
-    } catch {
-        res.status(404).json(err)
+        const milestone = await newMilestone.save();
+        res.json(milestone);
+    } catch (err) {
+        console.log(err);
+        res.status(404).json(err);
     }
 });
 
-router.delete('/:milestone_id',async (req, res) => { //delete whole milestone
+router.delete('/all', async (req, res) => { //delete db
+    const milestones = await Milestone.findAll();
+    await milestones.deleteAll();
+})
+
+router.delete('/:milestone_id',async (req, res) => { //delete single milestone
     const milestone = await Milestone.findByID({_id: req.params.milestone_id});
 
     if (milestone) {
