@@ -3,12 +3,11 @@ dotenv.config();
 const express = require('express');
 const neo4j = require('neo4j-driver');
 const milestones = require('./routes/milestones.js');
-// const { uri, user, password, protocol, host, neo4jPort } = require('./config/keys.js');
-const Neode = require('neode');
 const path = require('path');
 const { fileURLToPath } = require('url');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -27,14 +26,13 @@ app.use('/api/milestones', milestones);
 // app.use(express.static(path.join(__dirname, 'public')));
 
 //Neo4j connection
-// const driver = new neo4j.driver(uri, neo4j.auth.basic(user, password));
-const instance = Neode.fromEnv();
+const driver = new neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
 const cypher = 'MATCH (n) RETURN *';
 
 app.get('/', async  (req, res) => {
     const session = driver.session();
     try {
-        const result = await instance.cypher(cypher);
+        const result = await session.run(cypher);
         const milestoneArr = [];
         // console.log(res.records);
         result.records.forEach(record => {

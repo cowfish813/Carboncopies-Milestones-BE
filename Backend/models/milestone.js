@@ -1,11 +1,5 @@
-const Neode = require('neode');
-const instance = Neode.fromEnv();
-
-instance.schema.install()
-    .then(() => console.log('Schema installed!'))
-
-const Milestone = instance.model(
-    'Milestone', {
+const Milestone = 
+{
     milestone_id: {
         primary: true,
         type: 'uuid',
@@ -43,7 +37,7 @@ const Milestone = instance.model(
 
     created_at: 'datetime',
     updated_at: 'datetime'
-})
+};
 
 module.exports = Milestone;
 

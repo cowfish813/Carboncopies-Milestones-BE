@@ -1,26 +1,30 @@
 const express = require('express');
-// const Milestone = require('./models/milestone.js');
-const Neode = require('neode');
 const path = require('path');
 const { fileURLToPath } = require('url');
-const instance = Neode.fromEnv();
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
-const Milestone = instance.withDirectory(__dirname +'/models');
 const router = express.Router();
+const neo4j = require('neo4j-driver');
+const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;
+const driver = new neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
+const session = driver.session();
 
 router.get('/', async (req, res) => {
     // const milestones = await Milestone.findAll();
     // console.log('get', milestones);
+    const cypher = 'MATCH (n) RETURN *';
     try {
-        // res.json(milestones)
+        const milestones = await session.run(cypher);
+        res.json(milestones);
+        session.close();
     } catch (err) {
         res.status(404).json(err);
     }
 });
 
 router.post('/', async (req, res) => {
-    const newMilestone = await instance.create('Milestone', {
+
+    const newMilestone = {
         purpose: req.body.purpose,
         property: req.body.property,
         effort: req.body.effort,
@@ -32,12 +36,14 @@ router.post('/', async (req, res) => {
         overHalfway: req.body.overHalfway,
         nearFinished: req.body.nearFinished,
         fullHumanWBE: req.body.fullHumanWBE,
-    })
-    
-    await console.log(newMilestone.get('purpose'));
+    }
+    const cypher = ``;
+    // await console.log(newMilestone.get('purpose'));
     try {
         // const milestone = await newMilestone.save();
         // res.json(milestone);
+        const newMilestone = await session.run(cypher);
+        session.close();
     } catch (err) {
         // console.log(err);
         res.status(404).json(err);
