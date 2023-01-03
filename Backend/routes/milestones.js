@@ -1,17 +1,13 @@
 const express = require('express');
-const path = require('path');
-const { fileURLToPath } = require('url');
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
 const router = express.Router();
 const neo4j = require('neo4j-driver');
+const { v4: uuidv4 } = require('uuid');
+
 const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;
 const driver = new neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
 const session = driver.session();
 
 router.get('/', async (req, res) => {
-    // const milestones = await Milestone.findAll();
-    // console.log('get', milestones);
     const cypher = 'MATCH (n) RETURN *';
     try {
         const milestones = await session.run(cypher);
@@ -23,12 +19,12 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-
-    const newMilestone = {
+    const cypher = 'CREATE (m:Milestone $props) RETURN m'
+    const props = { props: {
+        id: uuidv4(),
         purpose: req.body.purpose,
         property: req.body.property,
         effort: req.body.effort,
-
         presentState: req.body.presentState,
         nearFuture: req.body.nearFuture,
         lessThanHalfway: req.body.lessThanHalfway,
@@ -36,15 +32,15 @@ router.post('/', async (req, res) => {
         overHalfway: req.body.overHalfway,
         nearFinished: req.body.nearFinished,
         fullHumanWBE: req.body.fullHumanWBE,
-    }
-    const cypher = ``;
-    // await console.log(newMilestone.get('purpose'));
+        date: Date.now()
+    }}
+
+    const newMilestone = await session.run(cypher, props);
     try {
-        // const milestone = await newMilestone.save();
-        // res.json(milestone);
-        const newMilestone = await session.run(cypher);
+        res.json(newMilestone);
         session.close();
-    } catch (err) {
+    } 
+    catch (err) {
         // console.log(err);
         res.status(404).json(err);
     }

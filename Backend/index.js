@@ -3,20 +3,18 @@ dotenv.config();
 const express = require('express');
 const neo4j = require('neo4j-driver');
 const milestones = require('./routes/milestones.js');
+const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;
+
 const path = require('path');
 const { fileURLToPath } = require('url');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
-const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;
 
 const app = express();
 const port = process.env.PORT || 5001;
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 app.use(express.json());
 app.use('/api/milestones', milestones);
-
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
 
 //view engine
 // app.set('views', path.join(__dirname, 'views')); //set views to view folder
@@ -36,11 +34,13 @@ app.get('/', async  (req, res) => {
         const milestoneArr = [];
         // console.log(res.records);
         result.records.forEach(record => {
+            console.log(record._fields[0].properties)
             milestoneArr.push({
                 id: record._fields[0].identity.low,
                 purpose: record._fields[0].properties.purpose,
                 //delete name when we get real stuff going
                 name: record._fields[0].properties.name,
+                name: record._fields[0].properties.id,
             })
         })
         res.send(milestoneArr);
@@ -49,26 +49,6 @@ app.get('/', async  (req, res) => {
         console.log(e);
         res.status(500).send(e);
     }
-    // try {
-    //     const result = await session.run(cypher)
-    //     const milestoneArr = [];
-    //     result.records.forEach(record => {
-    //         milestoneArr.push({
-    //             id: record._fields[0].identity.low,
-    //             purpose: record._fields[0].properties.purpose,
-    //             //delete name when we get real stuff going
-    //             name: record._fields[0].properties.name,
-    //         })
-    //     })
-    //     // res.render('index', {
-    //     //     milestone: milestoneArr,
-    //     // })
-    //     res.send(milestoneArr);
-    //     session.close();
-    // } catch(e) {
-    //     console.log(e);
-    //     res.status(500).send(e);
-    // }
 })
 
 
