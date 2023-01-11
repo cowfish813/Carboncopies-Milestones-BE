@@ -34,6 +34,7 @@ app.get('/', async  (req, res) => {
         const milestoneArr = [];
         result.records.forEach(record => {
             // console.log(record._fields[0].properties)
+            console.log(record._fields[0].properties)
             if (record._fields[0].properties.milestone_id) {
                 milestoneArr.push({
                     purpose: record._fields[0].properties.purpose,
@@ -49,4 +50,4 @@ app.get('/', async  (req, res) => {
         console.log(e);
         res.status(500).send(e);
     }
-})
+});

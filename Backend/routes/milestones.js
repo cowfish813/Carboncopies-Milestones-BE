@@ -18,6 +18,20 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/:milestone_id', async (req, res) => {
+    const session = driver.session();
+    const cypher = 'MATCH (m:Milestone {milestone_id: $id}) RETURN *';
+    const id = req.params.milestone_id;
+    console.log('h')
+    try {
+        const milestones = await session.run(cypher, id);
+        res.json(milestones);
+        session.close();
+    } catch (err) {
+        res.status(404).json(err);
+    }
+});
+
 router.post('/', async (req, res) => {
     const session = driver.session();
     const cypher = 'CREATE (m:Milestone $props) RETURN m'
@@ -51,6 +65,7 @@ router.post('/', async (req, res) => {
 
 router.delete('/all', async (req, res) => { //delete db
     const session = driver.session();
+    //clear DB
 
     // const milestones = await Milestone.findAll();
     // await milestones.deleteAll();
@@ -77,10 +92,22 @@ router.delete('/:milestone_id',async (req, res) => { //delete single milestone
 
 router.patch('/:milestone_id', async (req, res) => {
     const session = driver.session();
-    const cypher1 = '';
-    const cypher = 'MATCH (m:Milestone {id:$props.milestone_id}) WHERE milestone_id = $milestone_id  RETURN m.milestone_id';
-    const props = { props: {
-        milestone_id: req.params.milestone_id,
+    const cypher = `MATCH (m {milestone_id: $id}) 
+        SET m.purpose = $purpose
+        SET m.property = $property
+        SET m.effort = $effort
+        SET m.presentState = $presentState
+        SET m.nearFuture = $nearFuture
+        SET m.lessThanHalfway = $lessThanHalfway
+        SET m.halfway = $halfway
+        SET m.overHalfway = $overHalfway
+        SET m.nearFinished = $nearFinished
+        SET m.fullHumanWBE = $fullHumanWBE
+        SET m.updated_at = $updated_at
+        RETURN m.milestone_id`;
+
+    const props = { 
+        id: req.params.milestone_id,
         purpose: req.body.purpose,
         property: req.body.property,
         effort: req.body.effort,
@@ -92,7 +119,7 @@ router.patch('/:milestone_id', async (req, res) => {
         nearFinished: req.body.nearFinished,
         fullHumanWBE: req.body.fullHumanWBE,
         updated_at: Date.now()
-    }}
+    }
 
     const newMilestone = await session.run(cypher, props);
 

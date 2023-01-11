@@ -10,10 +10,31 @@ To start Backend Server from terminal
 
 
 ## Tech Stack 
-Node.js, Express.js, MongoDB
-# ODM
+Node.js, Express.js, Neo4j 
 
+# Included Libraries
+UUID
+neo4j-driver
 
-# Making File Imports
-"type": "module" is added to package.json, allows us to use ES6 syntax with import statements instead of require
+## Routes
+HTTP Request: GET 
+- enter list of all Milestones and their relationships
+- EXCLUDES submilestones
+localhost:5001/api/milestones
 
+HTTP Request: POST - create Milestone
+- returns ID upon success
+localhost:5001/api/milestones
+
+HTTP Request: PATCH 
+- Add properties to selected Milestone => include relationships?
+localhost:5001/api/milestones:milestone_id
+
+HTTP Request: DELETE 
+- deletes milestones, its relationships, subMilestones, and milestones related to subMilestones
+localhost:5001/api/milestones:milestone_id
+
+HTTP Request: DELETE 
+- deletes ALL milestones
+## DEVELOPER ROUTE ONLY 
+localhost:5001/api/all

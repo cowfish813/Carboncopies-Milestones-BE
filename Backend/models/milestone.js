@@ -1,43 +1,65 @@
-const Milestone = 
-{
-    milestone_id: {
-        primary: true,
-        type: 'uuid',
-        required: true
-    },
-    purpose: {
-        type: 'string',
-        index: true
-    },
-    nextMilestone: {
-        type: 'relationships',
-        target: 'Milestone',
-        relationship: 'NEXT_MILESTONE'
-    },
-    prevMilestone: {
-        type: 'relationships',
-        target: 'Milestone',
-        relationship: 'PREVIOUS_MILESTONE'
-    },
-    subMilestone: {
-        type: 'relationships',
-        target: 'Milestone',
-        relationship: 'SUB'
-    },
+const { v4: uuidv4 } = require('uuid');
+uuidv4();
+class Milestone {
+    constructor() {
+        // milestone_id: uuidv4(),
+        // purpose: req.body.purpose,
+        // property: req.body.property,
+        // effort: req.body.effort,
+        // presentState: req.body.presentState,
+        // nearFuture: req.body.nearFuture,
+        // lessThanHalfway: req.body.lessThanHalfway,
+        // halfway: req.body.halfway,
+        // overHalfway: req.body.overHalfway,
+        // nearFinished: req.body.nearFinished,
+        // fullHumanWBE: req.body.fullHumanWBE,
+        // date: Date.now(),
+        // updated_at: Date.now()
+    
+    }
+}
 
-    effort: 'string',
-    property: 'string',
-    presentState: 'string',
-    nearFuture: 'string',
-    lessThanHalfway: 'string',
-    halfway: 'string',
-    overHalfway: 'string',
-    nearFinished: 'string',
-    fullHumanWBE: 'string',
 
-    created_at: 'datetime',
-    updated_at: 'datetime'
-};
+// const Milestone = 
+// {
+//     milestone_id: {
+//         primary: true,
+//         type: 'uuid',
+//         required: true
+//     },
+//     purpose: {
+//         type: 'string',
+//         index: true
+//     },
+//     nextMilestone: {
+//         type: 'relationships',
+//         target: 'Milestone',
+//         relationship: 'NEXT_MILESTONE'
+//     },
+//     prevMilestone: {
+//         type: 'relationships',
+//         target: 'Milestone',
+//         relationship: 'PREVIOUS_MILESTONE'
+//     },
+//     subMilestone: {
+//         type: 'relationships',
+//         target: 'Milestone',
+//         relationship: 'SUB'
+//     },
+
+//     effort: 'string',
+//     property: 'string',
+//     presentState: 'string',
+//     nearFuture: 'string',
+//     lessThanHalfway: 'string',
+//     halfway: 'string',
+//     overHalfway: 'string',
+//     nearFinished: 'string',
+//     fullHumanWBE: 'string',
+
+//     created_at: 'datetime',
+//     updated_at: 'datetime'
+// };
 
 module.exports = Milestone;
 
