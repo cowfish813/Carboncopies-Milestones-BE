@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 uuidv4();
 class Milestone {
-    constructor() {
+    constructor(val) {
         // milestone_id: uuidv4(),
         // purpose: req.body.purpose,
         // property: req.body.property,

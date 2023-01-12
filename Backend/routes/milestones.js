@@ -1,3 +1,4 @@
+const { Router } = require('express');
 const express = require('express');
 const router = express.Router();
 const neo4j = require('neo4j-driver');
@@ -18,14 +19,16 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:milestone_id', async (req, res) => {
+router.get('/:milestone_id', async (req, res) => { 
+    //single node
     const session = driver.session();
     const cypher = 'MATCH (m:Milestone {milestone_id: $id}) RETURN *';
-    const id = req.params.milestone_id;
-    console.log('h')
+    // const id = req.params;
+    console.log(req.params);
+
     try {
-        const milestones = await session.run(cypher, id);
-        res.json(milestones);
+        // const milestone = await session.run(cypher, id);
+        // res.json(milestone);
         session.close();
     } catch (err) {
         res.status(404).json(err);
@@ -51,6 +54,19 @@ router.post('/', async (req, res) => {
         updated_at: Date.now()
     }}
 
+    router.patch('./:id1/:id2', async (req, res) => { 
+        // relationships
+        const session = driver.session();
+        console.log(await req.params);
+        
+        try {
+
+            session.close();
+        } catch (e) {
+            console.log(e)
+        }
+    })
+
     const newMilestone = await session.run(cypher, props);
     try {
         res.json(newMilestone);
@@ -66,24 +82,23 @@ router.post('/', async (req, res) => {
 router.delete('/all', async (req, res) => { //delete db
     const session = driver.session();
     //clear DB
-
-    // const milestones = await Milestone.findAll();
-    // await milestones.deleteAll();
-})
-
-router.delete('/:milestone_id',async (req, res) => { //delete single milestone
-    const session = driver.session();
-
-    // const milestone = await Milestone.findByID({_id: req.params.milestone_id});
-
-    // if (milestone) {
-    //     // await milestone.delete();
-    // } else {
-    //     // return 'Server Message: milestone not found';
-    // }
+    const cypher = 'CREATE (m:Milestone $props) RETURN m'
 
     try {
-        // res.json({_id: milestone._id});
+        
+    } catch (e) {
+        console.log(e);
+    }
+})
+
+router.delete('/:milestone_id',async (req, res) => { 
+    //delete single milestone + relationships
+    const session = driver.session();
+    const cypher = `MATCH (m {milestone_id: $id}) DETACH DELETE m`;
+    const id = req.params.milestone_id;
+    const newMilestone = await session.run(cypher, {id});
+    try {
+        res.json(newMilestone);
         session.close();
     } catch (err) {
         res.status(404).json(err);
@@ -91,6 +106,7 @@ router.delete('/:milestone_id',async (req, res) => { //delete single milestone
 });
 
 router.patch('/:milestone_id', async (req, res) => {
+    //update single milestone properties
     const session = driver.session();
     const cypher = `MATCH (m {milestone_id: $id}) 
         SET m.purpose = $purpose
@@ -120,12 +136,10 @@ router.patch('/:milestone_id', async (req, res) => {
         fullHumanWBE: req.body.fullHumanWBE,
         updated_at: Date.now()
     }
-
     const newMilestone = await session.run(cypher, props);
 
     try {
         res.json(newMilestone);
-        // res.json({_id: milestone._id})
         session.close();
     } catch (err) {
         res.status(404).json(err)
