@@ -23,8 +23,8 @@ router.get('/:milestone_id', async (req, res) => {
     //single node
     const session = driver.session();
     const cypher = 'MATCH (m:Milestone {milestone_id: $id}) RETURN *';
-    // const id = req.params;
-    console.log(req.params);
+    const id = req.params.milestone_id;
+    console.log(req.params.milestone_id);
 
     try {
         // const milestone = await session.run(cypher, id);
@@ -40,10 +40,10 @@ router.post('/', async (req, res) => {
     const cypher = 'CREATE (m:Milestone $props) RETURN m'
     const props = { props: {
         milestone_id: uuidv4(),
-        purpose: req.body.purpose,
+        purpose: req.body.purpose, 
         property: req.body.property,
         effort: req.body.effort,
-        presentState: req.body.presentState,
+        presentState: req.body.presentState, 
         nearFuture: req.body.nearFuture,
         lessThanHalfway: req.body.lessThanHalfway,
         halfway: req.body.halfway,
@@ -53,19 +53,6 @@ router.post('/', async (req, res) => {
         date: Date.now(),
         updated_at: Date.now()
     }}
-
-    router.patch('./:id1/:id2', async (req, res) => { 
-        // relationships
-        const session = driver.session();
-        console.log(await req.params);
-        
-        try {
-
-            session.close();
-        } catch (e) {
-            console.log(e)
-        }
-    })
 
     const newMilestone = await session.run(cypher, props);
     try {
@@ -79,6 +66,29 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.patch('/:id1/:id2', async (req, res) => { 
+    // same tier relationships
+        //the FIRST wildcard is the PARENT node
+    const session = driver.session();
+    const id1 = req.params.id1;
+    const id2 = req.params.id2;
+    const cypher = `
+        MATCH (a:Milestone), (b:Milestone)
+        WHERE a.milestone_id = $id1 AND b.milestone_id = $id2
+        MERGE (a)-[r:PRECEDES]->(b)
+        RETURN a,b`;
+
+
+        const addedRelationship = await session.run(cypher, {id1, id2});
+
+    try {
+        res.json(addedRelationship);
+        session.close();
+    } catch (e) {
+        console.log(e);
+    }
+})
+
 router.delete('/all', async (req, res) => { //delete db
     const session = driver.session();
     //clear DB
@@ -91,7 +101,7 @@ router.delete('/all', async (req, res) => { //delete db
     }
 })
 
-router.delete('/:milestone_id',async (req, res) => { 
+router.delete('/:milestone_id', async (req, res) => { 
     //delete single milestone + relationships
     const session = driver.session();
     const cypher = `MATCH (m {milestone_id: $id}) DETACH DELETE m`;
@@ -106,7 +116,7 @@ router.delete('/:milestone_id',async (req, res) => {
 });
 
 router.patch('/:milestone_id', async (req, res) => {
-    //update single milestone properties
+    //update single milestone properties - NO relationships
     const session = driver.session();
     const cypher = `MATCH (m {milestone_id: $id}) 
         SET m.purpose = $purpose
