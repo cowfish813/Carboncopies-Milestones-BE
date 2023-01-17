@@ -31,19 +31,6 @@ app.get('/', async  (req, res) => {
     const session = driver.session();
     try {
         const result = await session.run(cypher);
-        const milestoneArr = [];
-        // result.records.forEach(record => {
-        //     // console.log(record._fields[0].properties)
-        //     console.log(record._fields[0].properties)
-        //     if (record._fields[0].properties.milestone_id) {
-        //         milestoneArr.push({
-        //             purpose: record._fields[0].properties.purpose,
-        //             id: record._fields[0].properties.milestone_id,
-        //             p: record._fields[0].properties.halfway,
-    
-        //         })
-        //     }
-        // })
         res.send(result);
         session.close();
     } catch (e) {
