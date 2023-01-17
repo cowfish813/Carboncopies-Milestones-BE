@@ -25,13 +25,18 @@ app.use('/api/milestones', milestones);
 
 //Neo4j connection
 const driver = new neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
-const cypher = 'MATCH (n) RETURN *';
+// const cypher = 'MATCH (n) RETURN *';
+const cypher = 'MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone) RETURN m,r,n';
 
 app.get('/', async  (req, res) => {
     const session = driver.session();
     try {
         const result = await session.run(cypher);
-        res.send(result);
+        const milestoneArr = [];
+        result.records.forEach(record => {
+            milestoneArr.push(record._fields)
+        })
+        res.send(milestoneArr);
         session.close();
     } catch (e) {
         console.log(e);

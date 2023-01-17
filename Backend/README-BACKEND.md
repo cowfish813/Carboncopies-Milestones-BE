@@ -26,9 +26,14 @@ neo4j-driver
     - local routes can be achieved on postman or Frontend framework of choice as...
 
 HTTP Request: GET 
-- enter list of all Milestones and their relationships
+- Milestones with relationships
 - EXCLUDES submilestones at this time
 - Route: localhost:5001/api/milestones
+
+HTTP Request: GET 
+- entire list of all Milestones
+- EXCLUDES submilestones at this time
+- Route: localhost:5001/api/milestones/all
 
 HTTP Request: POST - create Milestone
 - returns ID upon success

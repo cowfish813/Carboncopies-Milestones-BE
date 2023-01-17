@@ -7,7 +7,24 @@ const { v4: uuidv4 } = require('uuid');
 const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;
 const driver = new neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
 
-router.get('/', async (req, res) => {
+app.get('/', async  (req, res) => { // ALL NODES with relationship PRECEDES
+    const cypher = 'MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone) RETURN m,r,n';
+    const session = driver.session();
+    try {
+        const result = await session.run(cypher);
+        const milestoneArr = [];
+        result.records.forEach(record => {
+            milestoneArr.push(record._fields)
+        })
+        res.send(milestoneArr);
+        session.close();
+    } catch (e) {
+        console.log(e);
+        res.status(500).send(e);
+    }
+});
+
+router.get('/all', async (req, res) => { // ALL nodes
     const session = driver.session();
     const cypher = 'MATCH (n) RETURN *';
     try {
@@ -23,6 +40,7 @@ router.get('/:milestone_id', async (req, res) => {
     //single node
     const session = driver.session();
     const cypher = 'MATCH (m:Milestone {milestone_id: $id}) RETURN *';
+    // const cypher = 'MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone) RETURN m,r,n'
     const id = req.params.milestone_id;
     console.log(req.params.milestone_id);
 
