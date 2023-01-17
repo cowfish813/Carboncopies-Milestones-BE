@@ -16,7 +16,7 @@ app.listen(port, () => console.log(`Server is running on port ${port}`));
 app.use(express.json());
 app.use('/api/milestones', milestones);
 
-//view engine
+// view engine => unecessary for Front End dev
 // app.set('views', path.join(__dirname, 'views')); //set views to view folder
 // app.use(logger('dev'));
 // app.use(bodyParser.json());
@@ -32,19 +32,19 @@ app.get('/', async  (req, res) => {
     try {
         const result = await session.run(cypher);
         const milestoneArr = [];
-        result.records.forEach(record => {
-            // console.log(record._fields[0].properties)
-            console.log(record._fields[0].properties)
-            if (record._fields[0].properties.milestone_id) {
-                milestoneArr.push({
-                    purpose: record._fields[0].properties.purpose,
-                    id: record._fields[0].properties.milestone_id,
-                    p: record._fields[0].properties.halfway,
+        // result.records.forEach(record => {
+        //     // console.log(record._fields[0].properties)
+        //     console.log(record._fields[0].properties)
+        //     if (record._fields[0].properties.milestone_id) {
+        //         milestoneArr.push({
+        //             purpose: record._fields[0].properties.purpose,
+        //             id: record._fields[0].properties.milestone_id,
+        //             p: record._fields[0].properties.halfway,
     
-                })
-            }
-        })
-        res.send(milestoneArr);
+        //         })
+        //     }
+        // })
+        res.send(result);
         session.close();
     } catch (e) {
         console.log(e);

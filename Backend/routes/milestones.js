@@ -54,8 +54,8 @@ router.post('/', async (req, res) => {
         updated_at: Date.now()
     }}
 
-    const newMilestone = await session.run(cypher, props);
     try {
+        const newMilestone = await session.run(cypher, props);
         res.json(newMilestone);
         session.close();
         
@@ -78,10 +78,8 @@ router.patch('/:id1/:id2', async (req, res) => {
         MERGE (a)-[r:PRECEDES]->(b)
         RETURN a,b`;
 
-
-        const addedRelationship = await session.run(cypher, {id1, id2});
-
     try {
+        const addedRelationship = await session.run(cypher, {id1, id2});
         res.json(addedRelationship);
         session.close();
     } catch (e) {
@@ -106,8 +104,8 @@ router.delete('/:milestone_id', async (req, res) => {
     const session = driver.session();
     const cypher = `MATCH (m {milestone_id: $id}) DETACH DELETE m`;
     const id = req.params.milestone_id;
-    const newMilestone = await session.run(cypher, {id});
     try {
+        const newMilestone = await session.run(cypher, {id});
         res.json(newMilestone);
         session.close();
     } catch (err) {
@@ -146,9 +144,9 @@ router.patch('/:milestone_id', async (req, res) => {
         fullHumanWBE: req.body.fullHumanWBE,
         updated_at: Date.now()
     }
-    const newMilestone = await session.run(cypher, props);
-
+    
     try {
+        const newMilestone = await session.run(cypher, props);
         res.json(newMilestone);
         session.close();
     } catch (err) {
