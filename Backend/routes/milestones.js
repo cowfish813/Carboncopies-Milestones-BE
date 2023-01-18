@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const neo4j = require('neo4j-driver');
 const { v4: uuidv4 } = require('uuid');
+const Milestone = require('../models/milestone');
 
 const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;
 const driver = new neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
@@ -18,9 +19,9 @@ router.get('/', async  (req, res) => { // ALL NODES with relationship PRECEDES
         })
         res.send(milestoneArr);
         session.close();
-    } catch (e) {
-        console.log(e);
-        res.status(500).send(e);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err);
     }
 });
 
@@ -56,30 +57,15 @@ router.get('/:milestone_id', async (req, res) => {
 router.post('/', async (req, res) => {
     const session = driver.session();
     const cypher = 'CREATE (m:Milestone $props) RETURN m'
-    const props = { props: {
-        milestone_id: uuidv4(),
-        purpose: req.body.purpose, 
-        property: req.body.property,
-        effort: req.body.effort,
-        presentState: req.body.presentState, 
-        nearFuture: req.body.nearFuture,
-        lessThanHalfway: req.body.lessThanHalfway,
-        halfway: req.body.halfway,
-        overHalfway: req.body.overHalfway,
-        nearFinished: req.body.nearFinished,
-        fullHumanWBE: req.body.fullHumanWBE,
-        date: Date.now(),
-        updated_at: Date.now()
-    }}
+    const newMilestone = new Milestone (req.body);
+    const props = {props: newMilestone};
 
     try {
-        const newMilestone = await session.run(cypher, props);
-        res.json(newMilestone);
+        const result = await session.run(cypher, props);
+        res.json(result);
         session.close();
-        
     } 
     catch (err) {
-        // console.log(err);
         res.status(404).json(err);
     }
 });
@@ -100,8 +86,8 @@ router.patch('/:id1/:id2', async (req, res) => {
         const addedRelationship = await session.run(cypher, {id1, id2});
         res.json(addedRelationship);
         session.close();
-    } catch (e) {
-        console.log(e);
+    } catch (err) {
+        console.log(err);
     }
 })
 
@@ -112,8 +98,26 @@ router.delete('/all', async (req, res) => { //delete db
 
     try {
         
-    } catch (e) {
-        console.log(e);
+    } catch (err) {
+        console.log(err);
+    }
+})
+
+router.delete('/rel/:id1/:id2', async (req, res) => {
+    //delete relationship
+    const session = driver.session();
+    const id1 = req.params.id1;
+    const id2 = req.params.id2;
+    const cypher = `
+        MATCH (a: Milestone)-[r:PRECEDES]->(b: Milestone)
+        WHERE a.milestone_id = $id1 AND b.milestone_id = $id2
+        DELETE r`;
+    try {
+        session.run(cypher, {id1, id2});
+
+        session.close();
+    } catch (err) {
+        console.log(err);
     }
 })
 

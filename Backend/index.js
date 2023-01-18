@@ -9,6 +9,7 @@ const path = require('path');
 const { fileURLToPath } = require('url');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const { type } = require('os');
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -25,17 +26,18 @@ app.use('/api/milestones', milestones);
 
 //Neo4j connection
 const driver = new neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
-// const cypher = 'MATCH (n) RETURN *';
-const cypher = 'MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone) RETURN m,r,n';
 
 app.get('/', async  (req, res) => {
+    // const cypher = 'MATCH (n) RETURN *';
+    const cypher = 'MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone) RETURN m,r,n';
     const session = driver.session();
     try {
         const result = await session.run(cypher);
-        const milestoneArr = [];
+        const milestoneArr = result.records.map(record => record._fields)
         result.records.forEach(record => {
             milestoneArr.push(record._fields)
         })
+        console.log(result)
         res.send(milestoneArr);
         session.close();
     } catch (e) {
