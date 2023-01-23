@@ -8,7 +8,7 @@ const Milestone = require('../models/milestone');
 const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;
 const driver = new neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
 
-router.get('/', async  (req, res) => { // ALL NODES with relationship PRECEDES
+router.get('/', async  (req, res) => { // ALL NODES with relationship: PRECEDES
     const cypher = 'MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone) RETURN m,r,n';
     const session = driver.session();
     try {
@@ -38,25 +38,24 @@ router.get('/all', async (req, res) => { // ALL nodes
 });
 
 router.get('/:milestone_id', async (req, res) => { 
-    //single node
+    // single node chain of relationships
     const session = driver.session();
-    const cypher = 'MATCH (m:Milestone {milestone_id: $id}) RETURN *';
-    // const cypher = 'MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone) RETURN m,r,n'
-    const id = req.params.milestone_id;
-    console.log(req.params.milestone_id);
+    const cypher = "MATCH m=(:Milestone { milestone_id:$id })-[*]->() RETURN m";
+    const id = {id: req.params.milestone_id};
 
     try {
-        // const milestone = await session.run(cypher, id);
-        // res.json(milestone);
+        const milestone = await session.run(cypher, id);
+        res.json(milestone);
         session.close();
     } catch (err) {
+        console.log(err);
         res.status(404).json(err);
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res) => { //create single Milestone
     const session = driver.session();
-    const cypher = 'CREATE (m:Milestone $props) RETURN m'
+    const cypher = 'CREATE (m:Milestone $props) RETURN m';
     const newMilestone = new Milestone (req.body);
     const props = {props: newMilestone};
 
@@ -66,6 +65,31 @@ router.post('/', async (req, res) => {
         session.close();
     } 
     catch (err) {
+        res.status(404).json(err);
+    }
+});
+
+router.post('/:id', async (req, res) => { //create single Milestone AND relationship
+    const session = driver.session();
+
+    const cypher = `MATCH (existing:Milestone {milestone_id=$id})
+        CREATE (newMilestone:Milestone $props)
+        MERGE (newMilestone)-[:PRECEDES]->(existing)
+        RETURN newMilestone, existing`
+
+    // const cypher = 'CREATE (m:Milestone $props) RETURN m';
+
+    const newMilestone = new Milestone (req.body);
+    const id = req.params.id;
+    const props = {props: newMilestone, id:id};
+    console.log(props, id, newMilestone)
+    try {
+        const result = await session.run(cypher, props);
+        res.json(result);
+        session.close();
+    } 
+    catch (err) {
+        console.log(err);
         res.status(404).json(err);
     }
 });
@@ -93,11 +117,8 @@ router.patch('/:id1/:id2', async (req, res) => {
 
 router.delete('/all', async (req, res) => { //delete db
     const session = driver.session();
-    //clear DB
-    const cypher = 'CREATE (m:Milestone $props) RETURN m'
-
     try {
-        
+        session.close();
     } catch (err) {
         console.log(err);
     }
@@ -112,9 +133,11 @@ router.delete('/rel/:id1/:id2', async (req, res) => {
         MATCH (a: Milestone)-[r:PRECEDES]->(b: Milestone)
         WHERE a.milestone_id = $id1 AND b.milestone_id = $id2
         DELETE r`;
-    try {
-        session.run(cypher, {id1, id2});
 
+    try {
+        const rel = await session.run(cypher, {id1, id2});
+        res.json(rel);
+        console.log('rel', rel)
         session.close();
     } catch (err) {
         console.log(err);
@@ -122,7 +145,7 @@ router.delete('/rel/:id1/:id2', async (req, res) => {
 })
 
 router.delete('/:milestone_id', async (req, res) => { 
-    //delete single milestone + relationships
+    //delete single milestone relationships
     const session = driver.session();
     const cypher = `MATCH (m {milestone_id: $id}) DETACH DELETE m`;
     const id = req.params.milestone_id;
