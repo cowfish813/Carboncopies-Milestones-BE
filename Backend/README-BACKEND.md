@@ -19,7 +19,7 @@ neo4j-driver
     # for driver/session
     NEO4J_URI= <NEO4J URI>
     NEO4J_DATABASE= <DATABASE NAME>
-5. npm run start:dev
+5. enter 'npm run start:dev' into terminal in main directory of Backend
     - this will create the backend server on port 5001. You are now free to hit the API routes
 
 ## Routes
@@ -34,17 +34,17 @@ neo4j-driver
         - hand keyed by user as "string" data
 - required information for POST of a milestone...
     {
-        "purpose": "new",
-        "property": "new",
+        "purpose": "content",
+        "property": "content",
         "effort" : "3",
-        "content": "new",
-        "presentState": "new",
-        "nearFuture": "new",
-        "lessThanHalfway": "new",
-        "halfway": "new",
-        "overHalfway": "new",
-        "nearFinished": "new",
-        "fullHumanWBE": "new"
+        "content": "content",
+        "presentState": "content",
+        "nearFuture": "content",
+        "lessThanHalfway": "content",
+        "halfway": "content",
+        "overHalfway": "content",
+        "nearFinished": "content",
+        "fullHumanWBE": "content"
     }
 
 
@@ -89,6 +89,11 @@ neo4j-driver
             startNodeElementId = Parent Node
             endNodeElementId = Successive Node
             Properties = Information carried on the node
+
+# Route: localhost:5001/api/milestones/:milestone_id
+- Returns unique milestone, based on params/ID in the URL, and all of its chain of relationships
+-  All appropriate nodes fall within the records array of objects
+
 
 ## Update - HTTP Request - PATCH
 # Route:localhost:5001/api/milestones/:milestone_id
