@@ -72,12 +72,10 @@ router.post('/', async (req, res) => { //create single Milestone
 router.post('/:id', async (req, res) => { //create single Milestone AND relationship
     const session = driver.session();
 
-    const cypher = `MATCH (existing:Milestone {milestone_id=$id})
+    const cypher = `MATCH (existing:Milestone { milestone_id:$id })
         CREATE (newMilestone:Milestone $props)
         MERGE (newMilestone)-[:PRECEDES]->(existing)
         RETURN newMilestone, existing`
-
-    // const cypher = 'CREATE (m:Milestone $props) RETURN m';
 
     const newMilestone = new Milestone (req.body);
     const id = req.params.id;
