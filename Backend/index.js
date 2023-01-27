@@ -3,6 +3,7 @@ dotenv.config();
 const express = require('express');
 const neo4j = require('neo4j-driver');
 const milestones = require('./routes/milestones.js');
+const spreadsheet = require('./routes/spreadsheet.js');
 const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;
 
 const path = require('path');
@@ -16,6 +17,7 @@ const port = process.env.PORT || 5001;
 app.listen(port, () => console.log(`Server is running on port ${port}`));
 app.use(express.json());
 app.use('/api/milestones', milestones);
+app.use('/api/spreadsheet', spreadsheet);
 
 // view engine => unecessary for Front End dev
 // app.set('views', path.join(__dirname, 'views')); //set views to view folder

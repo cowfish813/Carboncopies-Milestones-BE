@@ -14,8 +14,8 @@ class Milestone {
         this.overHalfway = val.overHalfway;
         this.nearFinished = val.nearFinished;
         this.fullHumanWBE = val.fullHumanWBE;
-        this.date = Date.now();
-        this.updated_at = Date.now();
+        this.created_at = new Date(Date.now()).toString();
+        this.updated_at = new Date(Date.now()).toString();
     }
 }
 
