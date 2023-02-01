@@ -1,73 +1,22 @@
-import mongoose from "mongoose";
+this.const = { v4: uuidv4 } = require('uuid');
+uuidv4();
 
-const Schema = mongoose.Schema;
-
-const MilestoneSchema = Schema({
-    purpose: {
-        type: String,
-        required: true
-    },
-
-    content: {
-        type: String,
-    }, 
-    
-    // 
-
-    // previous: {
-    //     type: Map,
-    //     of: String
-    // },
-    
-    // children: {
-    //     type: Map,
-    //     of: String
-    // }, //should i key in and edit on backend with each delete?
-        
-    // or should it be a nested object starting with parents?
-    children: {
-        type: [ this ],
-        default: {}
-    },
-
-    next: {
-        type: [ this ],
-        default: {}
-    },
-    // 
-
-    // author: {
-    //     type: String,
-    // }, //figure out after OAuth
-
-    presentState: {
-        type: String
-    },
-    
-    nearFuture: {
-        type: String
-    },
-
-    lessThanHalfway: {
-        type: String
-    },
-
-    halfway: {
-        type: String
-    },
-
-    overHalfway: {
-        type: String
-    },
-
-    nearFinished: {
-        type: String
-    },
-
-    fullHumanWBE: {
-        type: String
+class Milestone {
+    constructor(val) {
+        this.milestone_id = uuidv4();
+        this.purpose = val.purpose;
+        this.property = val.property;
+        this.effort = val.effort;
+        this.presentState = val.presentState;
+        this.nearFuture = val.nearFuture;
+        this.lessThanHalfway = val.lessThanHalfway;
+        this.halfway = val.halfway;
+        this.overHalfway = val.overHalfway;
+        this.nearFinished = val.nearFinished;
+        this.fullHumanWBE = val.fullHumanWBE;
+        this.date = Date.now();
+        this.updated_at = Date.now();
     }
+}
 
-}, {timestamps: true});
-
-export const Milestone = mongoose.model('Milestone', MilestoneSchema);
+module.exports = Milestone;
