@@ -15,52 +15,39 @@ const {authenticate} = require('@google-cloud/local-auth');
 const {google} = require('googleapis');
 // const process = require('process');
 
-// If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
-// The file token.json stores the user's access and refresh tokens, and is
-// created automatically when the authorization flow completes for the first
-// time.
-const TOKEN_PATH = path.join(process.cwd(), 'token.json');
-const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
+const {GoogleAuth} = require('google-auth-library');
 
-async function loadSavedCredentialsIfExist() {
-  try {
-    const content = await fs.readFile(TOKEN_PATH);
-    const credentials = JSON.parse(content);
-    return google.auth.fromJSON(credentials);
-  } catch (err) {
-    return null;
-  }
+async function uploadBasic(fileToDrive) {
+  // Get credentials and build service
+  // TODO (developer) - Use appropriate auth mechanism for your app
+    const auth = new GoogleAuth({
+        scopes: 'https://www.googleapis.com/auth/drive',
+    });
+    const service = google.drive({version: 'v3', auth});
+    const fileMetadata = {
+        name: sheetName,
+    };
+
+    const media = {
+        mimeType: 'application/json',
+        body: fs.createReadStream(fileToDrive),
+    };
+
+    try {
+        const file = await service.files.create({
+            resource: fileMetadata,
+            media: media,
+            fields: 'id',
+        });
+        console.log('File Id:', file.data.id);
+        return file.data.id;
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
 }
 
-
-// const uploadFileToDrive = async (filePath) => {
-//     const auth = await google.auth.getClient({
-//         scopes: ['https://www.googleapis.com/auth/drive'],
-//     });
-//     const drive = google.drive({version: 'v3', auth});
-
-//     const fileMetadata = {
-//         name: 'My File'
-//     };
-//     const media = {
-//         mimeType: 'application/octet-stream',
-//         body: fs.createReadStream(filePath),
-//     };
-//     const [file] = await drive.files.create({
-//         resource: fileMetadata,
-//         media: media,
-//         fields: 'id',
-//     });
-//     console.log(`File ID: ${file.id}`);
-// }
-
 router.get('/', async (req, res) => {
-    //export whole db
-        //must export to google sheets
-            //export/GET from neo4j
-            //POST to google
-
     const cypher = `
         CALL apoc.export.json.all(null, {stream:true})
         YIELD file, nodes, relationships, properties, data
@@ -70,14 +57,16 @@ router.get('/', async (req, res) => {
     try {
         const result = await session.run(cypher);
         const data = result.records.map(record => record._fields[4]);
-        const file = fs.writeFileSync(sheetName, data[0]);
+        // const file = fs.writeFileSync(sheetName, data[0]);
 
+        // uploadBasic(file);
         res.send(data);
         session.close();
     } catch (e) {
         console.log(e);
     }
 })
+
 // file:///1674858879743ccf6f82d3f2-00f4-492c-9f0f-9aa1e9249f83.csv
 //test link:  https://docs.google.com/spreadsheets/d/1jGbsFhfOIl375_EaGSjb8Ur9sbhvO9UURqdDJ6QoRGc/edit?usp=sharing
 router.post('/', async (req, res) => {
