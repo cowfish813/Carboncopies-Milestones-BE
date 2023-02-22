@@ -6,9 +6,10 @@ UUID
 neo4j-driver
 
 ## To start Backend Server from terminal
-1. Navigate into Backend Folder
+1. Navigate inside Backend Folder
+    - this will be our "root directory"
 2. Type "npm i" into the terminal and hit enter
-    - this will install node modules to your local device
+    - this will install node modules to your root directory
 3. Create ".env" file in the root directory of "Backend" folder
 4. add the following key parameters into the ".env" file as directed via messaging
     NEO4J_PROTOCOL= <YOUR PROTOCOL>
