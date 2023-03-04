@@ -12,8 +12,8 @@ const {
     REFRESH_TOKEN 
     } = process.env;
 const driver = new neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
-// const sheetName = `${Date.now()}ccf${uuidv4()}.json`;
-const sheetName = `${Date.now()}ccf${uuidv4()}.csv`;
+const sheetName = `${Date.now()}ccf${uuidv4()}.json`;
+// const sheetName = `${Date.now()}ccf${uuidv4()}.csv`;
 
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
 const oAuth2Client = new google.auth.OAuth2(
@@ -21,29 +21,28 @@ const oAuth2Client = new google.auth.OAuth2(
     CLIENT_SECRET, 
     REDIRECT_URI,
 );
+
 const googleSharedDriveID = '1Spm0zSrUPb4McJjvNylngzWHmJKF8VXy';//Shared Drives - Education - Roadmap Vis
 
 oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
 
 const postToDrive = async (name, file) => {
-
-    const drive = google.drive({
-        version: 'v3',
-        auth: oAuth2Client
-    });
+    const googleAuth = { version: 'v3', auth: oAuth2Client };
+    const drive = google.drive(googleAuth);
+    const sheet = google.sheet(googleAuth);
 
     const fileMetaData = {
         name,
-        mimeType: 'application/json',
+        mimeType: 'text/json',
     };
     const media = {
-        mimeType: 'application/json',
+        mimeType: 'text/json',
         body: JSON.stringify(file)
     };
     const requestBody = {
         name,
         resource: fileMetaData,
-        mimeType: 'application/json', //mimetype package can identify file
+        mimeType: 'text/json', //mimetype package can identify file
         parents: [googleSharedDriveID]
     };
 
@@ -98,7 +97,7 @@ router.post('/', async (req, res) => {
     //     })`;
 
     const cypher = `
-        WITH 'https://drive.google.com/file/d/1l_haqJ5jctv2hy3z3ZoJ5PzSXAOfjPil/view?usp=share_link' AS url
+        WITH 'https://drive.google.com/file/d/1EqeUdPR45qIALvF4Fr4dit_KYEAuM3r2/view?usp=share_link' AS url
         CALL apoc.load.json(url) YIELD value
         UNWIND value.data AS data
             CREATE (m:MILESTONE {
@@ -135,6 +134,8 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
+    //downloads from neo4j
+    //uploads to google drive
     const cypher = `
         CALL apoc.export.json.all(null, {stream:true})
         YIELD file, nodes, relationships, properties, data
