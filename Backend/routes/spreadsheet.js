@@ -5,7 +5,6 @@ const { v4: uuidv4 } = require('uuid');
 const {google} = require('googleapis');
 
 const fs = require('fs');
-const csv = require('fast-csv');
 const { Parser } = require('@json2csv/plainjs');
 
 const { 
@@ -36,7 +35,6 @@ oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
 const postToDrive = async (name, file) => {
     const googleAuth = { version: 'v3', auth: oAuth2Client };
     const drive = google.drive(googleAuth);
-    // const sheet = google.sheets(googleAuth);
 
     const fileMetaData = {
         name,
@@ -77,41 +75,19 @@ const downloadFromDrive = async (drive, fileId) => {1
     return res.data;
 };
 
-const uploadToNeo4j = async (fileId) => {
-    const stream = await downloadFromDrive(drive, fileId);
-    stream(on("data", chunk => {
-        const data = JSON.parse(chunk.toString());
-    }))
-};
+// const uploadToNeo4j = async (fileId) => {
+//     const stream = await downloadFromDrive(drive, fileId);
+//     stream(on("data", chunk => {
+//         const data = JSON.parse(chunk.toString());
+//     }))
+// };
 
 router.post('/', async (req, res) => {
-    // const cypher = `
-    //     LOAD CSV WITH HEADERS FROM 'https://docs.google.com/spreadsheets/d/1nAi72QiKLOofV9JOByAXezfVDJjC3WqEcd4x2r69bM0/edit#gid=0' AS row
-    //     CREATE (:MILESTONE {
-    //         milestone_id: row.milestone_id,
-    //         purpose : row.purpose,
-    //         property : row.property,
-    //         effort : row.effort,
-    //         presentState : row.presentState,
-    //         nearFuture : row.nearFuture,
-    //         lessThanHalfway : row.lessThanHalfway,
-    //         halfway : row.halfway,
-    //         overHalfway : row.overHalfway,
-    //         nearFinished : row.nearFinished,
-    //         fullHumanWBE : row.fullHumanWBE,
-    //         created_at : row.created_at,
-    //         updated_at: $updated
-    //     })`;
-
-    // const cypher = `
-    //     WITH 'https://drive.google.com/file/d/1EqeUdPR45qIALvF4Fr4dit_KYEAuM3r2/view?usp=share_link' AS url
-    //     CALL apoc.load.json(url) YIELD value
-    //     RETURN value
-    // `;
-
     const cypher = `
-        UNWIND https://drive.google.com/file/d/1EqeUdPR45qIALvF4Fr4dit_KYEAuM3r2/view?usp=share_link as data
+        LOAD CSV WITH HEADERS FROM 'https://docs.google.com/spreadsheets/d/1ltaLzU6USZpaNilNad0CTflIqMduIOZ-nrp6aevIDeg/export?format=csv' AS row
+        RETURN row
     `
+
 
     const session = driver.session();
     const updated = new Date(Date.now()).toString();
@@ -119,9 +95,8 @@ router.post('/', async (req, res) => {
     const props = {url, updated};
 
     try {
-        // await session.run("CALL dbms.security.setConfigValue('dbms.security.allow_csv_import_from_file_urls', true)");
-        const result = await session.run(cypher, props);
-
+        const result = await session.run(cypher);
+        console.log(result)
         res.send(result);
     } catch (e) {
         console.log(e);
@@ -138,12 +113,12 @@ router.get('/', async (req, res) => {
         `;
     const session = driver.session();
     try {
-        const parser = new Parser();
+        // const parser = new Parser();
         
         const result = await session.run(cypher);
         const data = result.records.map(record => record._fields[4]);
 
-        const csv = parser.parse(result)
+        // const csv = parser.parse(result)
         // postToDrive(csvName, data);
         postToDrive(jsonName, result);
         res.send(data);
@@ -152,42 +127,6 @@ router.get('/', async (req, res) => {
         console.log(e);
     }
 });
-
-
-// const test = async (name, file) => {
-//     const googleAuth = { version: 'v3', auth: oAuth2Client };
-//     const drive = google.drive(googleAuth);
-//     const sheet = google.sheets(googleAuth);
-
-//     const fileMetaData = {
-//         name,
-//         mimeType: 'text/json',
-//     };
-//     const media = {
-//         mimeType: 'text/json',
-//         body: JSON.stringify(file)
-//     };
-//     const requestBody = {
-//         name,
-//         resource: fileMetaData,
-//         mimeType: 'text/json', //mimetype package can identify file
-//         parents: [googleSharedDriveID]
-//     };
-
-//     try {
-//         const response = await drive.files.create({
-//             supportsAllDrives: true,
-//             requestBody,
-//             media,
-//             fields: 'id, name'
-//         })
-
-//         console.log('drive ID:', response.data.id);
-//     } catch (e) {
-//         console.log(e.message, e);
-//     }
-// };
-
 
 router.get('/csv', async (req, res) => {
     const cypher = ` 
