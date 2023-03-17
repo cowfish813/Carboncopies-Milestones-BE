@@ -3,6 +3,11 @@ const router = express.Router();
 const neo4j = require('neo4j-driver');
 const { v4: uuidv4 } = require('uuid');
 const {google} = require('googleapis');
+
+const fs = require('fs');
+const csv = require('fast-csv');
+const { Parser } = require('@json2csv/plainjs');
+
 const { 
     NEO4J_URI, 
     NEO4J_USERNAME, 
@@ -11,9 +16,11 @@ const {
     CLIENT_SECRET, 
     REFRESH_TOKEN 
     } = process.env;
-const driver = new neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
-const sheetName = `${Date.now()}ccf${uuidv4()}.json`;
-// const sheetName = `${Date.now()}ccf${uuidv4()}.csv`;
+
+const driver = new neo4j.driver(NEO4J_URI, 
+    neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
+const jsonName = `${Date.now()}ccf${uuidv4()}.json`;
+const csvName = `${Date.now()}ccf${uuidv4()}.csv`;
 
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
 const oAuth2Client = new google.auth.OAuth2(
@@ -29,7 +36,7 @@ oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
 const postToDrive = async (name, file) => {
     const googleAuth = { version: 'v3', auth: oAuth2Client };
     const drive = google.drive(googleAuth);
-    const sheet = google.sheet(googleAuth);
+    // const sheet = google.sheets(googleAuth);
 
     const fileMetaData = {
         name,
@@ -96,27 +103,15 @@ router.post('/', async (req, res) => {
     //         updated_at: $updated
     //     })`;
 
+    // const cypher = `
+    //     WITH 'https://drive.google.com/file/d/1EqeUdPR45qIALvF4Fr4dit_KYEAuM3r2/view?usp=share_link' AS url
+    //     CALL apoc.load.json(url) YIELD value
+    //     RETURN value
+    // `;
+
     const cypher = `
-        WITH 'https://drive.google.com/file/d/1EqeUdPR45qIALvF4Fr4dit_KYEAuM3r2/view?usp=share_link' AS url
-        CALL apoc.load.json(url) YIELD value
-        UNWIND value.data AS data
-            CREATE (m:MILESTONE {
-            milestone_id: data.milestone_id,
-            purpose : data.purpose,
-            property : data.property,
-            effort : data.effort,
-            presentState : data.presentState,
-            nearFuture : data.nearFuture,
-            lessThanHalfway : data.lessThanHalfway,
-            halfway : data.halfway,
-            overHalfway : data.overHalfway,
-            nearFinished : data.nearFinished,
-            fullHumanWBE : data.fullHumanWBE,
-            created_at : data.created_at,
-            updated_at: $updated
-        })
-        SET m += data
-    `;
+        UNWIND https://drive.google.com/file/d/1EqeUdPR45qIALvF4Fr4dit_KYEAuM3r2/view?usp=share_link as data
+    `
 
     const session = driver.session();
     const updated = new Date(Date.now()).toString();
@@ -143,15 +138,106 @@ router.get('/', async (req, res) => {
         `;
     const session = driver.session();
     try {
+        const parser = new Parser();
+        
         const result = await session.run(cypher);
         const data = result.records.map(record => record._fields[4]);
-        postToDrive(sheetName, data);
+
+        const csv = parser.parse(result)
+        // postToDrive(csvName, data);
+        postToDrive(jsonName, result);
         res.send(data);
         session.close();
     } catch (e) {
         console.log(e);
     }
 });
+
+
+// const test = async (name, file) => {
+//     const googleAuth = { version: 'v3', auth: oAuth2Client };
+//     const drive = google.drive(googleAuth);
+//     const sheet = google.sheets(googleAuth);
+
+//     const fileMetaData = {
+//         name,
+//         mimeType: 'text/json',
+//     };
+//     const media = {
+//         mimeType: 'text/json',
+//         body: JSON.stringify(file)
+//     };
+//     const requestBody = {
+//         name,
+//         resource: fileMetaData,
+//         mimeType: 'text/json', //mimetype package can identify file
+//         parents: [googleSharedDriveID]
+//     };
+
+//     try {
+//         const response = await drive.files.create({
+//             supportsAllDrives: true,
+//             requestBody,
+//             media,
+//             fields: 'id, name'
+//         })
+
+//         console.log('drive ID:', response.data.id);
+//     } catch (e) {
+//         console.log(e.message, e);
+//     }
+// };
+
+
+router.get('/csv', async (req, res) => {
+    const cypher = ` 
+    CALL apoc.export.csv.all(null, {stream: true})
+        YIELD file, nodes, relationships, properties, data
+        RETURN file, nodes, relationships, properties, data
+        `;
+    const session = driver.session();
+    try {
+        const result = await session.run(cypher);    
+        csvToDrive(csvName, (result.records.map(record => record._fields)[0][4]));
+        res.send(result);
+        session.close();
+    } catch (e) {
+        console.log(e);
+    }
+});
+
+const csvToDrive = async (name, file) => {
+    const googleAuth = { version: 'v3', auth: oAuth2Client };
+    const drive = google.drive(googleAuth);
+
+    const fileMetaData = {
+        name,
+        mimeType: 'application/vnd.google-apps.spreadsheet',
+    };
+    const media = {
+        mimeType: 'application/vnd.google-apps.spreadsheet',
+        body: file
+    };
+    const requestBody = {
+        name,
+        resource: fileMetaData,
+        mimeType: 'application/vnd.google-apps.spreadsheet', //mimetype package can identify file
+        parents: [googleSharedDriveID]
+    };
+
+    try {
+        const response = await drive.files.create({
+            supportsAllDrives: true,
+            requestBody,
+            media,
+            fields: 'id, name'
+        })
+
+        console.log('drive ID:', response.data.id);
+    } catch (e) {
+        console.log(e.message, e);
+    }
+};
 
 const spreadsheet = router;
 module.exports = spreadsheet;
