@@ -5,7 +5,7 @@ const milestones = require('./routes/milestones.js');
 const spreadsheet = require('./routes/spreadsheet.js');
 const app = express();
 const cors = require('cors');
-app.use(cors())
+app.use(cors());
 
 const port = process.env.PORT || 5001;
 app.listen(port, () => console.log(`Server is running on port ${port}`));
