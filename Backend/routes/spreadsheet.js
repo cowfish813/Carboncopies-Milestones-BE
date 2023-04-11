@@ -26,24 +26,21 @@ const googleSharedDriveID = '1Spm0zSrUPb4McJjvNylngzWHmJKF8VXy';
     //Shared Drives - Education - Roadmap Vis
 
 oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
-
 const downloadFromDrive = async (realFileId) => {
     const auth = new GoogleAuth({
         scopes: 'https://www.googleapis.com/auth/drive',
     });
     const service = google.drive({version: 'v3', auth: oAuth2Client});
-
     fileId = realFileId;
     try {
-        const file = await service.files.get({
+        //files.get?
+        const file = await service.files.export({
             fileId,
-            alt: 'media',
-            mimeType: 'application/vnd.google-apps.spreadsheet'
+            // alt: 'media',
+            mimeType: 'text/csv'
         });
-        console.log(file, 'stuff')
         return file;
     } catch (err) {
-    // TODO(developer) - Handle error
         console.log(err, 'error');
         throw err;
     }
@@ -51,29 +48,124 @@ const downloadFromDrive = async (realFileId) => {
 
 // download from google drive
 router.post('/', async (req, res) => {
-    const id = '1Cg3Xeo2xgVyqnB-xEu0o9nJtqMe5vSuJZ95d0yQtcCA';
-    const id2 = '1ofxhIiuOzNQ5BTEFINDpL-x6DbmO17MLmZUnAzP9asc';
-    const file = await downloadFromDrive(id);
-    const file2 = await downloadFromDrive(id2);
+    console.log();
+
+    const id = '10Z1I70fVqE7yRDkhZoMbcG1Cx3CCScfBJzKvnkfwux8';
+
     // const cypher = `
-    // LOAD CSV WITH HEADERS FROM 'https://docs.google.com/spreadsheets/d/1ltaLzU6USZpaNilNad0CTflIqMduIOZ-nrp6aevIDeg/export?format=csv' AS csv
-    // fieldterminator ','
-    // MERGE (m:MILESTONE {_id: csv._id})
+    //     LOAD CSV WITH HEADERS FROM 'https://docs.google.com/spreadsheets/d/10Z1I70fVqE7yRDkhZoMbcG1Cx3CCScfBJzKvnkfwux8/export?format=csv' AS csv
+    //     WITH csv 
+    //     WHERE csv._labels IS NOT NULL
+    //     AND csv._id IS NOT NULL
+    //     AND csv.effort IS NOT NULL
+    //     AND csv.fullHumanWBE IS NOT NULL
+    //     AND csv.halfway IS NOT NULL
+    //     AND csv.lessThanHalfway IS NOT NULL
+    //     AND csv.milestone_id IS NOT NULL
+    //     AND csv.name IS NOT NULL
+    //     AND csv.nearFinished IS NOT NULL
+    //     AND csv.nearFuture IS NOT NULL
+    //     AND csv.overHalfway IS NOT NULL
+    //     AND csv.presentState IS NOT NULL
+    //     AND csv.property IS NOT NULL
+    //     AND csv.purpose IS NOT NULL
+    //     AND csv._start IS NOT NULL
+    //     AND csv._end IS NOT NULL
+    //     AND csv._type IS NOT NULL
+    //     AND csv.updated_at IS NOT NULL
+    //     MERGE (m:MILESTONE {
+    //         _id: csv._id,
+    //         _labels: csv._labels,
+    //         effort: csv.effort,
+    //         fullHumanWBE: csv.fullHumanWBE,
+    //         halfway: csv.halfway,
+    //         lessThanHalfway: csv.lessThanHalfway,
+    //         milestone_id: csv.milestone_id,
+    //         name: csv.name,
+    //         nearFinished: csv.nearFinished,	
+    //         nearFuture: csv.nearFuture, 
+    //         overHalfway: csv.overHalfway,
+    //         presentState: csv.presentState,
+    //         property: csv.property,
+    //         purpose: csv.purpose,
+    //         _start: csv._start,
+    //         _end: csv._end,
+    //         _type: csv._type,
+    //         updated_at: csv.updated_at
+    //     })
     // `;
-    
-    // const session = driver.session();
+
+    const cypher = `
+        LOAD CSV WITH HEADERS FROM 'https://docs.google.com/spreadsheets/d/10Z1I70fVqE7yRDkhZoMbcG1Cx3CCScfBJzKvnkfwux8/export?format=csv' AS csv
+        WITH csv 
+        WHERE csv._labels IS NOT NULL
+            AND csv._id IS NOT NULL
+            AND csv.effort IS NOT NULL
+            AND csv.fullHumanWBE IS NOT NULL
+            AND csv.halfway IS NOT NULL
+            AND csv.lessThanHalfway IS NOT NULL
+            AND csv.milestone_id IS NOT NULL
+            AND csv.name IS NOT NULL
+            AND csv.nearFinished IS NOT NULL
+            AND csv.nearFuture IS NOT NULL
+            AND csv.overHalfway IS NOT NULL
+            AND csv.presentState IS NOT NULL
+            AND csv.property IS NOT NULL
+            AND csv.purpose IS NOT NULL
+            AND csv._start IS NOT NULL
+            AND csv._end IS NOT NULL
+            AND csv._type IS NOT NULL
+            AND csv.updated_at IS NOT NULL
+        MERGE (m:MILESTONE {
+            _id: csv._id
+        })
+        ON CREATE SET m._labels = csv._labels,
+            m.effort = csv.effort,
+            m.fullHumanWBE = csv.fullHumanWBE,
+            m.halfway = csv.halfway,
+            m.lessThanHalfway = csv.lessThanHalfway,
+            m.milestone_id = csv.milestone_id,
+            m.name = csv.name,
+            m.nearFinished = csv.nearFinished,	
+            m.nearFuture = csv.nearFuture, 
+            m.overHalfway = csv.overHalfway,
+            m.presentState = csv.presentState,
+            m.property = csv.property,
+            m.purpose = csv.purpose,
+            m._start = csv._start,
+            m._end = csv._end,
+            m._type = csv._type,
+            m.updated_at = csv.updated_at
+        ON MATCH SET m._labels = csv._labels,
+            m.effort = csv.effort,
+            m.fullHumanWBE = csv.fullHumanWBE,
+            m.halfway = csv.halfway,
+            m.lessThanHalfway = csv.lessThanHalfway,
+            m.milestone_id = csv.milestone_id,
+            m.name = csv.name,
+            m.nearFinished = csv.nearFinished,	
+            m.nearFuture = csv.nearFuture, 
+            m.overHalfway = csv.overHalfway,
+            m.presentState = csv.presentState,
+            m.property = csv.property,
+            m.purpose = csv.purpose,
+            m._start = csv._start,
+            m._end = csv._end,
+            m._type = csv._type,
+            m.updated_at = csv.updated_at
+    `
+    const session = driver.session();
     // const updated = new Date(Date.now()).toString();
     // const url = req.body.url;
     // const props = {url, updated};
     
     try {
-        // console.log("stuff", file, 'hello');
-        // const result = await session.run(cypher);
-        // console.log(result)
-        // res.send(result);
-        res.send(file);
+        // const file = await downloadFromDrive(id);
+        const result = await session.run(cypher);
+        res.send(result);
+        session.close();
     } catch (e) {
-        console.log('world', e);
+        console.log(e);
     }
 });
 
