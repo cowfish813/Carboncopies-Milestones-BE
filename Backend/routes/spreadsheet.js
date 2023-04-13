@@ -14,7 +14,7 @@ const {
     } = process.env;
 const driver = new neo4j.driver(NEO4J_URI, 
     neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
-const csvName = `${Date.now()}ccf${uuidv4()}.csv`;
+const csvName = `${Date.now()}ccf${uuidv4()}`;
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
 const oAuth2Client = new google.auth.OAuth2(
     CLIENT_ID, 
@@ -47,79 +47,18 @@ const downloadFromDrive = async (realFileId) => {
 };
 
 // download from google drive
-router.post('/', async (req, res) => {
-    console.log();
+router.post('/:drive_id', async (req, res) => {
+    const id = req.params;
+    const url = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
+        //issue parsing this "string" as a cypher wildcard
+    const updated = new Date(Date.now()).toString();
+    const props = {url, updated};
 
-    const id = '10Z1I70fVqE7yRDkhZoMbcG1Cx3CCScfBJzKvnkfwux8';
-
-    // const cypher = `
-    //     LOAD CSV WITH HEADERS FROM 'https://docs.google.com/spreadsheets/d/10Z1I70fVqE7yRDkhZoMbcG1Cx3CCScfBJzKvnkfwux8/export?format=csv' AS csv
-    //     WITH csv 
-    //     WHERE csv._labels IS NOT NULL
-    //     AND csv._id IS NOT NULL
-    //     AND csv.effort IS NOT NULL
-    //     AND csv.fullHumanWBE IS NOT NULL
-    //     AND csv.halfway IS NOT NULL
-    //     AND csv.lessThanHalfway IS NOT NULL
-    //     AND csv.milestone_id IS NOT NULL
-    //     AND csv.name IS NOT NULL
-    //     AND csv.nearFinished IS NOT NULL
-    //     AND csv.nearFuture IS NOT NULL
-    //     AND csv.overHalfway IS NOT NULL
-    //     AND csv.presentState IS NOT NULL
-    //     AND csv.property IS NOT NULL
-    //     AND csv.purpose IS NOT NULL
-    //     AND csv._start IS NOT NULL
-    //     AND csv._end IS NOT NULL
-    //     AND csv._type IS NOT NULL
-    //     AND csv.updated_at IS NOT NULL
-    //     MERGE (m:MILESTONE {
-    //         _id: csv._id,
-    //         _labels: csv._labels,
-    //         effort: csv.effort,
-    //         fullHumanWBE: csv.fullHumanWBE,
-    //         halfway: csv.halfway,
-    //         lessThanHalfway: csv.lessThanHalfway,
-    //         milestone_id: csv.milestone_id,
-    //         name: csv.name,
-    //         nearFinished: csv.nearFinished,	
-    //         nearFuture: csv.nearFuture, 
-    //         overHalfway: csv.overHalfway,
-    //         presentState: csv.presentState,
-    //         property: csv.property,
-    //         purpose: csv.purpose,
-    //         _start: csv._start,
-    //         _end: csv._end,
-    //         _type: csv._type,
-    //         updated_at: csv.updated_at
-    //     })
-    // `;
-
-    const cypher = `
-        LOAD CSV WITH HEADERS FROM 'https://docs.google.com/spreadsheets/d/10Z1I70fVqE7yRDkhZoMbcG1Cx3CCScfBJzKvnkfwux8/export?format=csv' AS csv
+    const cypher = `LOAD CSV WITH HEADERS FROM $url AS csv
         WITH csv 
-        WHERE csv._labels IS NOT NULL
-            AND csv._id IS NOT NULL
-            AND csv.effort IS NOT NULL
-            AND csv.fullHumanWBE IS NOT NULL
-            AND csv.halfway IS NOT NULL
-            AND csv.lessThanHalfway IS NOT NULL
-            AND csv.milestone_id IS NOT NULL
-            AND csv.name IS NOT NULL
-            AND csv.nearFinished IS NOT NULL
-            AND csv.nearFuture IS NOT NULL
-            AND csv.overHalfway IS NOT NULL
-            AND csv.presentState IS NOT NULL
-            AND csv.property IS NOT NULL
-            AND csv.purpose IS NOT NULL
-            AND csv._start IS NOT NULL
-            AND csv._end IS NOT NULL
-            AND csv._type IS NOT NULL
-            AND csv.updated_at IS NOT NULL
-        MERGE (m:MILESTONE {
-            _id: csv._id
-        })
-        ON CREATE SET m._labels = csv._labels,
+        WHERE csv.milestone_id IS NOT NULL
+        MERGE (m:Milestone {milestone_id: csv.milestone_id})
+        SET m._labels = csv._labels,
             m.effort = csv.effort,
             m.fullHumanWBE = csv.fullHumanWBE,
             m.halfway = csv.halfway,
@@ -132,40 +71,17 @@ router.post('/', async (req, res) => {
             m.presentState = csv.presentState,
             m.property = csv.property,
             m.purpose = csv.purpose,
-            m._start = csv._start,
-            m._end = csv._end,
-            m._type = csv._type,
-            m.updated_at = csv.updated_at
-        ON MATCH SET m._labels = csv._labels,
-            m.effort = csv.effort,
-            m.fullHumanWBE = csv.fullHumanWBE,
-            m.halfway = csv.halfway,
-            m.lessThanHalfway = csv.lessThanHalfway,
-            m.milestone_id = csv.milestone_id,
-            m.name = csv.name,
-            m.nearFinished = csv.nearFinished,	
-            m.nearFuture = csv.nearFuture, 
-            m.overHalfway = csv.overHalfway,
-            m.presentState = csv.presentState,
-            m.property = csv.property,
-            m.purpose = csv.purpose,
-            m._start = csv._start,
-            m._end = csv._end,
-            m._type = csv._type,
-            m.updated_at = csv.updated_at
+            m.updated_at = $updated
     `
     const session = driver.session();
-    // const updated = new Date(Date.now()).toString();
-    // const url = req.body.url;
-    // const props = {url, updated};
     
     try {
         // const file = await downloadFromDrive(id);
-        const result = await session.run(cypher);
+        const result = await session.run(cypher, props);
         res.send(result);
         session.close();
     } catch (e) {
-        console.log(e);
+        console.log('error:', e);
     }
 });
 
