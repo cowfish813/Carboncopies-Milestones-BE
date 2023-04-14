@@ -20,29 +20,8 @@ const oAuth2Client = new google.auth.OAuth2(
     REDIRECT_URI,
 );
 oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
-const {GoogleAuth} = require('google-auth-library');
 const googleSharedDriveID = '1Spm0zSrUPb4McJjvNylngzWHmJKF8VXy';
     //Shared Drives - Education - Roadmap Vis
-
-// const downloadFromDrive = async (realFileId) => {
-//     const auth = new GoogleAuth({
-//         scopes: 'https://www.googleapis.com/auth/drive',
-//     });
-//     const service = google.drive({version: 'v3', auth: oAuth2Client});
-//     fileId = realFileId;
-//     try {
-//         //files.get?
-//         const file = await service.files.export({
-//             fileId,
-//             // alt: 'media',
-//             mimeType: 'text/csv'
-//         });
-//         return file;
-//     } catch (err) {
-//         console.log(err, 'error');
-//         throw err;
-//     }
-// };
 
 // download from google drive
 router.post('/:drive_id/', async (req, res) => {
@@ -88,7 +67,6 @@ router.post('/:drive_id/', async (req, res) => {
         YIELD rel
         RETURN rel
     `
-    
 
     const session = driver.session();
     
@@ -96,17 +74,12 @@ router.post('/:drive_id/', async (req, res) => {
         const result = await session.run(cypher, props);
         const rel = await session.run(cypherRelationship, props);
         res.send({result, rel})
+
         session.close();
     } catch (e) {
         console.log('error:', e);
     }
 });
-
-// router.post('/:drive_id', async (res, req) => {
-    
-// })
-
-
 
 //upload to google drive
 router.get('/csv', async (req, res) => {
