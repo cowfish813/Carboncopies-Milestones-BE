@@ -21,30 +21,30 @@ const oAuth2Client = new google.auth.OAuth2(
     CLIENT_SECRET, 
     REDIRECT_URI,
 );
-
 const googleSharedDriveID = '1Spm0zSrUPb4McJjvNylngzWHmJKF8VXy';
     //Shared Drives - Education - Roadmap Vis
 
 oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
-const downloadFromDrive = async (realFileId) => {
-    const auth = new GoogleAuth({
-        scopes: 'https://www.googleapis.com/auth/drive',
-    });
-    const service = google.drive({version: 'v3', auth: oAuth2Client});
-    fileId = realFileId;
-    try {
-        //files.get?
-        const file = await service.files.export({
-            fileId,
-            // alt: 'media',
-            mimeType: 'text/csv'
-        });
-        return file;
-    } catch (err) {
-        console.log(err, 'error');
-        throw err;
-    }
-};
+
+// const downloadFromDrive = async (realFileId) => {
+//     const auth = new GoogleAuth({
+//         scopes: 'https://www.googleapis.com/auth/drive',
+//     });
+//     const service = google.drive({version: 'v3', auth: oAuth2Client});
+//     fileId = realFileId;
+//     try {
+//         //files.get?
+//         const file = await service.files.export({
+//             fileId,
+//             // alt: 'media',
+//             mimeType: 'text/csv'
+//         });
+//         return file;
+//     } catch (err) {
+//         console.log(err, 'error');
+//         throw err;
+//     }
+// };
 
 // download from google drive
 router.post('/:drive_id', async (req, res) => {
@@ -53,7 +53,8 @@ router.post('/:drive_id', async (req, res) => {
         //issue parsing this "string" as a cypher wildcard
     const updated = new Date(Date.now()).toString();
     const props = {url, updated};
-
+        //generate new milestone id with uuid?
+        
     const cypher = `LOAD CSV WITH HEADERS FROM $url AS csv
         WITH csv 
         WHERE csv.milestone_id IS NOT NULL
@@ -73,6 +74,7 @@ router.post('/:drive_id', async (req, res) => {
             m.purpose = csv.purpose,
             m.updated_at = $updated
     `
+        //how do i deal with relationships?
     const session = driver.session();
     
     try {
