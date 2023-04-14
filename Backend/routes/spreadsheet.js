@@ -88,16 +88,14 @@ router.post('/:drive_id/', async (req, res) => {
         YIELD rel
         RETURN rel
     `
+    
 
     const session = driver.session();
     
     try {
         const result = await session.run(cypher, props);
-        res.send(result);
-        // const rel = await session.run(cypherRelationship, props);
-        // res.send(rel);
-            //working!?
-
+        const rel = await session.run(cypherRelationship, props);
+        res.send({result, rel})
         session.close();
     } catch (e) {
         console.log('error:', e);
