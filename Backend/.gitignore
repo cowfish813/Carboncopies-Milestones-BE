@@ -1,7 +1,6 @@
-/mongodb
 /config
 /node_modules
 
 package-lock.json
-
+credentials.json
 .env

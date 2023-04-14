@@ -1,16 +1,17 @@
 ## Tech Stack 
-Node.js, Express.js, Neo4j 
+Node.js, Express.js, Neo4j, axios, fast-csv(?)
 
 # Included Libraries
 UUID
 neo4j-driver
 
 ## To start Backend Server from terminal
-1. Navigate to Backend Folder
+1. Navigate inside Backend Folder
+    - this will be our "root directory"
 2. Type "npm i" into the terminal and hit enter
-    - this will install node modules to your local device
-3. Create ".env" file
-4. add the following key parameters as directed via messaging
+    - this will install node modules to your root directory
+3. Create ".env" file in the root directory of "Backend" folder
+4. add the following key parameters into the ".env" file as directed via messaging
     NEO4J_PROTOCOL= <YOUR PROTOCOL>
     NEO4J_HOST = <NEO4J HOST>
     NEO4J_USERNAME = <USERNAME>
@@ -46,7 +47,10 @@ neo4j-driver
         "nearFinished": "content",
         "fullHumanWBE": "content"
     }
-
+# Route:localhost:5001/api/milestones/:id
+- Creates new Milestone with reference to its previous milestone
+- :id is a wildcard and is a reference point to attach a new milestone as its successor
+    - :id PRECEDES new Milestone 
 
 ## Read - HTTP Request: GET 
 # Route: localhost:5001/api/milestones/all
@@ -93,7 +97,6 @@ neo4j-driver
 # Route: localhost:5001/api/milestones/:milestone_id
 - Returns unique milestone, based on params/ID in the URL, and all of its chain of relationships
 -  All appropriate nodes fall within the records array of objects
-
 
 ## Update - HTTP Request - PATCH
 # Route:localhost:5001/api/milestones/:milestone_id

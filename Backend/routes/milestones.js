@@ -185,7 +185,7 @@ router.patch('/:milestone_id', async (req, res) => {
         overHalfway: req.body.overHalfway,
         nearFinished: req.body.nearFinished,
         fullHumanWBE: req.body.fullHumanWBE,
-        updated_at: Date.now()
+        updated_at: new Date(Date.now()).toString()
     }
     
     try {
