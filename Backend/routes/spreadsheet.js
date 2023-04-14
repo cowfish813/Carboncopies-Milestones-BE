@@ -3,7 +3,6 @@ const router = express.Router();
 const neo4j = require('neo4j-driver');
 const { v4: uuidv4 } = require('uuid');
 const {google} = require('googleapis');
-const {GoogleAuth} = require('google-auth-library');
 const { 
     NEO4J_URI, 
     NEO4J_USERNAME, 
@@ -14,17 +13,16 @@ const {
     } = process.env;
 const driver = new neo4j.driver(NEO4J_URI, 
     neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
-const csvName = `${Date.now()}ccf${uuidv4()}`;
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
 const oAuth2Client = new google.auth.OAuth2(
     CLIENT_ID, 
     CLIENT_SECRET, 
     REDIRECT_URI,
 );
+oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
+const {GoogleAuth} = require('google-auth-library');
 const googleSharedDriveID = '1Spm0zSrUPb4McJjvNylngzWHmJKF8VXy';
     //Shared Drives - Education - Roadmap Vis
-
-oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
 
 // const downloadFromDrive = async (realFileId) => {
 //     const auth = new GoogleAuth({
@@ -47,23 +45,20 @@ oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
 // };
 
 // download from google drive
-router.post('/:drive_id', async (req, res) => {
-    const id = req.params;
-    // console.log(id);
-    // const url = await downloadFromDrive('1YHVaZV9jhEGNgsS9qKQbRoMlQqqPhv3n0fAq3ShGQV8');
-    const url = `https://docs.google.com/spreadsheets/d/${id.drive_id}/export?format=csv`;
+router.post('/:drive_id/', async (req, res) => {
+    const id = req.params.drive_id;
+    const url = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
     const updated = new Date(Date.now()).toString();
     const props = {url, updated, uuid: uuidv4()};
     const cypher = `LOAD CSV WITH HEADERS FROM $url AS csv
         WITH csv 
         WHERE csv.milestone_id IS NOT NULL
         MERGE (m:Milestone {milestone_id: csv.milestone_id})
-        SET m._labels = csv._labels,
-            m.effort = csv.effort,
+        SET m.effort = csv.effort,
             m.fullHumanWBE = csv.fullHumanWBE,
             m.halfway = csv.halfway,
             m.lessThanHalfway = csv.lessThanHalfway,
-            m.milestone_id = $uuid,
+            m.milestone_id = csv.milestone_id,
             m.name = csv.name,
             m.nearFinished = csv.nearFinished,	
             m.nearFuture = csv.nearFuture, 
@@ -71,23 +66,53 @@ router.post('/:drive_id', async (req, res) => {
             m.presentState = csv.presentState,
             m.property = csv.property,
             m.purpose = csv.purpose,
-            m.updated_at = $updated
+            m.updated_at = datetime()
+    ` //may require additional merge in case of additional labels
+
+    const cypherRelationship = `
+        LOAD CSV WITH HEADERS FROM $url AS csv
+        WITH csv 
+        MATCH (m1:Milestone), (m2:Milestone)
+        WHERE csv._start IS NOT NULL
+            AND csv._end IS NOT NULL
+            AND csv._type IS NOT NULL
+            AND ID(m1) = toInteger(csv._start)
+            AND ID(m2) = toInteger(csv._end)
+        CALL apoc.merge.relationship(
+            m1, 
+            csv._type, 
+            {}, 
+            {created_at: datetime()}, 
+            m2, {updated_at: datetime()}
+        )
+        YIELD rel
+        RETURN rel
     `
-        //how do i deal with relationships?
 
     const session = driver.session();
     
     try {
         const result = await session.run(cypher, props);
         res.send(result);
+        // const rel = await session.run(cypherRelationship, props);
+        // res.send(rel);
+            //working!?
+
         session.close();
     } catch (e) {
         console.log('error:', e);
     }
 });
 
+// router.post('/:drive_id', async (res, req) => {
+    
+// })
+
+
+
 //upload to google drive
 router.get('/csv', async (req, res) => {
+    const csvName = `${Date.now()}ccf${uuidv4()}.csv`;
     const cypher = ` 
     CALL apoc.export.csv.all(null, {stream: true})
         YIELD file, nodes, relationships, properties, data
@@ -97,6 +122,7 @@ router.get('/csv', async (req, res) => {
     try {
         const result = await session.run(cypher);    
         csvToDrive(csvName, (result.records.map(record => record._fields)[0][4]));
+        console.log(result.records)
         res.send(result);
         session.close();
     } catch (e) {
@@ -152,7 +178,7 @@ const csvToDrive = async (name, file) => {
         console.log('Permission request successful', access.data);
         console.log('drive ID:', response.data.id);
     } catch (e) {
-        console.log(e.message, e);
+        console.log(e.message,'CSVTODRIVE FUNC ERROR' ,e);
     }
 };
 
