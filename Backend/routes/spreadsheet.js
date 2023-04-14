@@ -49,12 +49,11 @@ oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
 // download from google drive
 router.post('/:drive_id', async (req, res) => {
     const id = req.params;
-    const url = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
-        //issue parsing this "string" as a cypher wildcard
+    // console.log(id);
+    // const url = await downloadFromDrive('1YHVaZV9jhEGNgsS9qKQbRoMlQqqPhv3n0fAq3ShGQV8');
+    const url = `https://docs.google.com/spreadsheets/d/${id.drive_id}/export?format=csv`;
     const updated = new Date(Date.now()).toString();
-    const props = {url, updated};
-        //generate new milestone id with uuid?
-        
+    const props = {url, updated, uuid: uuidv4()};
     const cypher = `LOAD CSV WITH HEADERS FROM $url AS csv
         WITH csv 
         WHERE csv.milestone_id IS NOT NULL
@@ -64,7 +63,7 @@ router.post('/:drive_id', async (req, res) => {
             m.fullHumanWBE = csv.fullHumanWBE,
             m.halfway = csv.halfway,
             m.lessThanHalfway = csv.lessThanHalfway,
-            m.milestone_id = csv.milestone_id,
+            m.milestone_id = $uuid,
             m.name = csv.name,
             m.nearFinished = csv.nearFinished,	
             m.nearFuture = csv.nearFuture, 
@@ -75,10 +74,10 @@ router.post('/:drive_id', async (req, res) => {
             m.updated_at = $updated
     `
         //how do i deal with relationships?
+
     const session = driver.session();
     
     try {
-        // const file = await downloadFromDrive(id);
         const result = await session.run(cypher, props);
         res.send(result);
         session.close();
