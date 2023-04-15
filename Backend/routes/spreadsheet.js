@@ -93,7 +93,7 @@ router.get('/csv', async (req, res) => {
     try {
         const result = await session.run(cypher);    
         csvToDrive(csvName, (result.records.map(record => record._fields)[0][4]));
-        console.log(result.records)
+
         res.send(result);
         session.close();
     } catch (e) {
@@ -146,8 +146,6 @@ const csvToDrive = async (name, file) => {
             sendNotificationEmail: false
         })
 
-        console.log('Permission request successful', access.data);
-        console.log('drive ID:', response.data.id);
     } catch (e) {
         console.log(e.message,'CSVTODRIVE FUNC ERROR' ,e);
     }
