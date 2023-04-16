@@ -28,8 +28,7 @@ const googleSharedDriveID = '1Spm0zSrUPb4McJjvNylngzWHmJKF8VXy';
 router.post('/:drive_id/', async (req, res) => {
     const id = req.params.drive_id;
     const url = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
-    const updated = new Date(Date.now()).toString();
-    const props = {url, updated, uuid: uuidv4()};
+    const props = {url, uuid: uuidv4()};
     const cypherCSV = `LOAD CSV WITH HEADERS FROM $url AS csv
         WITH csv 
         WHERE csv.milestone_id IS NOT NULL

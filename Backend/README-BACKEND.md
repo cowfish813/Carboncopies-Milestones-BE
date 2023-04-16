@@ -115,3 +115,35 @@ neo4j-driver
 # Route:localhost:5001/api/milestones/all
 - deletes ALL milestones
 - in development
+
+
+# Spreadsheet Routes
+- These routes refer to interaction with the shared organization Google Drive in the subfolders Shared drives -> Education -> Roadmap Visualization
+
+# HTTP Request: POST
+## Route localhost:5001/api/spreadsheet/:drive_id/
+- This route takes in an argument that is the driveID for the sheet.
+    - The driveID can be identified from the link of an existing document in the shared drive Roadmap Visualization
+        - ex: https://docs.google.com/spreadsheets/d/1S-pgXzgBnGjssH7wIpwcie87AxgYQRRO_7rCwlS6MB0/edit#gid=348246882
+            - the ID in this example is "1S-pgXzgBnGjssH7wIpwcie87AxgYQRRO_7rCwlS6MB0"
+        - the example route will look like "localhost:5001/api/spreadsheet/1S-pgXzgBnGjssH7wIpwcie87AxgYQRRO_7rCwlS6MB0"
+- contains 2 cypher queries.
+    - cypherCSV will parse the argument link and create nodes
+    - cypherRelationship parses the argument for 3 specific headers listed below in the bottom right side of the spreadsheet as _start, _end, _type => first node, successive node, relationship name
+- Users are allowed to edit or add to any part of the spreadsheet except adding a new header property or "label". The code is not designed to take in new header information at this time
+- When editing the document AT THIS TIME: 
+    - milestone_id column values MUST BE UNIQUE
+- When editing relationships in the _start, _end, and _type columns
+    - _start: the unique _id of the PRECEDESing node
+    - _end: the unique _id successive node
+    - _type: nature of relationship. CASE SENSITIVE
+        - TIP: to avoid confusion, always download a NEW sheet. The database will assign unique _id values to any node that was uploaded this way. You may then edit the ID's yourself
+
+
+# HTTP Request: GET
+# Route localhost:5001/api/spreadsheet/
+- Downloads entire databse and Uploads to google share drive
+    - From google drive home and Carboncopies account: Shared drives -> Education -> Roadmap Visualization
+- Returns Drive ID for identification and can be used to provide or forward a user to the link to access the drive document
+    - ex. https://docs.google.com/spreadsheets/d/1S-pgXzgBnGjssH7wIpwcie87AxgYQRRO_7rCwlS6MB0/
+    - the drive is publicly accessible for anyone, regardless of affiliation with the organization
