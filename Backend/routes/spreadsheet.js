@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const neo4j = require('neo4j-driver');
 const { v4: uuidv4 } = require('uuid');
+const Milestone = require('../models/milestone');
 const {google} = require('googleapis');
 const { 
     NEO4J_URI, 
@@ -29,7 +30,7 @@ router.post('/:drive_id/', async (req, res) => {
     const url = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
     const updated = new Date(Date.now()).toString();
     const props = {url, updated, uuid: uuidv4()};
-    const cypher = `LOAD CSV WITH HEADERS FROM $url AS csv
+    const cypherCSV = `LOAD CSV WITH HEADERS FROM $url AS csv
         WITH csv 
         WHERE csv.milestone_id IS NOT NULL
         MERGE (m:Milestone {milestone_id: csv.milestone_id})
@@ -46,7 +47,8 @@ router.post('/:drive_id/', async (req, res) => {
             m.property = csv.property,
             m.purpose = csv.purpose,
             m.updated_at = datetime()
-    ` //may require additional merge in case of additional labels
+    ` //may require additional properties on spreadsheet header
+        //avoid anything that begins with "_" as a header. ex. _id, _labels
 
     const cypherRelationship = `
         LOAD CSV WITH HEADERS FROM $url AS csv
@@ -71,7 +73,7 @@ router.post('/:drive_id/', async (req, res) => {
     const session = driver.session();
     
     try {
-        const result = await session.run(cypher, props);
+        const result = await session.run(cypherCSV, props);
         const rel = await session.run(cypherRelationship, props);
         res.send({result, rel})
 
@@ -79,7 +81,8 @@ router.post('/:drive_id/', async (req, res) => {
     } catch (e) {
         console.log('error:', e);
     }
-});
+}); //can I assign new milestone_id? currently have bug that assigns the same id for all new nodes
+        //with null node, can i call for a new milestone node instead by importing the model?
 
 //upload to google drive
 router.get('/csv', async (req, res) => {
@@ -92,9 +95,9 @@ router.get('/csv', async (req, res) => {
     const session = driver.session();
     try {
         const result = await session.run(cypher);    
-        csvToDrive(csvName, (result.records.map(record => record._fields)[0][4]));
+        const csvID = await csvToDrive(csvName, (result.records.map(record => record._fields)[0][4]));
 
-        res.send(result);
+        res.send(csvID.data.id);
         session.close();
     } catch (e) {
         console.log(e);
@@ -145,7 +148,7 @@ const csvToDrive = async (name, file) => {
             supportsTeamDrives: true,
             sendNotificationEmail: false
         })
-
+        return response;
     } catch (e) {
         console.log(e.message,'CSVTODRIVE FUNC ERROR' ,e);
     }
