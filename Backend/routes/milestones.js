@@ -1,8 +1,6 @@
-const { Router } = require('express');
 const express = require('express');
 const router = express.Router();
 const neo4j = require('neo4j-driver');
-const { v4: uuidv4 } = require('uuid');
 const Milestone = require('../models/milestone');
 
 const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;

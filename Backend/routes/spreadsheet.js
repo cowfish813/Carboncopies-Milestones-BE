@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const neo4j = require('neo4j-driver');
 const { v4: uuidv4 } = require('uuid');
-const Milestone = require('../models/milestone');
 const {google} = require('googleapis');
 const { 
     NEO4J_URI, 
@@ -10,7 +9,8 @@ const {
     NEO4J_PASSWORD, 
     CLIENT_ID, 
     CLIENT_SECRET, 
-    REFRESH_TOKEN 
+    REFRESH_TOKEN,
+    GOOGLE_SHARED_DRIVE_ID
     } = process.env;
 const driver = new neo4j.driver(NEO4J_URI, 
     neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
@@ -21,11 +21,9 @@ const oAuth2Client = new google.auth.OAuth2(
     REDIRECT_URI,
 );
 oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
-const googleSharedDriveID = '1Spm0zSrUPb4McJjvNylngzWHmJKF8VXy';
-    //Shared Drives - Education - Roadmap Vis
 
 // download from google drive
-router.post('/:drive_id/', async (req, res) => {
+router.put('/:drive_id/', async (req, res) => {
     const id = req.params.drive_id;
     const url = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
     const props = {url, uuid: uuidv4()};
@@ -82,6 +80,8 @@ router.post('/:drive_id/', async (req, res) => {
     }
 }); //can I assign new milestone_id? currently have bug that assigns the same id for all new nodes
         //with null node, can i call for a new milestone node instead by importing the model?
+            //i'd still run into the problem. new node is only called once
+                //how do i call a new UUID in cypher?
 
 //upload to google drive
 router.get('/csv', async (req, res) => {
@@ -119,7 +119,7 @@ const csvToDrive = async (name, file) => {
         name,
         resource: fileMetaData,
         mimeType: 'application/vnd.google-apps.spreadsheet', //mimetype package can identify file
-        parents: [googleSharedDriveID]
+        parents: [GOOGLE_SHARED_DRIVE_ID]
     };
 
     try {

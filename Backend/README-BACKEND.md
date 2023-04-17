@@ -119,8 +119,16 @@ neo4j-driver
 
 # Spreadsheet Routes
 - These routes refer to interaction with the shared organization Google Drive in the subfolders Shared drives -> Education -> Roadmap Visualization
+- To get it working, it will require additional properties to the ".env" file including...
+    CLIENT_ID
+    CLIENT_SECRET
+    REDIRECT_URI
+    REFRESH_TOKEN = obtain new access tokens
+    GOOGLE_SHARED_DRIVE_ID = The ID of folder to save CSVs of our database
+- more information on using OAuth 2.0 to access Google APIs can be found here https://developers.google.com/identity/protocols/oauth2
 
-# HTTP Request: POST
+
+# HTTP Request: PUT
 ## Route localhost:5001/api/spreadsheet/:drive_id/
 - This route takes in an argument that is the driveID for the sheet.
     - The driveID can be identified from the link of an existing document in the shared drive Roadmap Visualization
@@ -137,7 +145,7 @@ neo4j-driver
     - _start: the unique _id of the PRECEDESing node
     - _end: the unique _id successive node
     - _type: nature of relationship. CASE SENSITIVE
-        - TIP: to avoid confusion, always download a NEW sheet. The database will assign unique _id values to any node that was uploaded this way. You may then edit the ID's yourself
+        - TIP: to avoid confusion, download complete the spreadsheet GET request. The database will assign unique _id values to any node that was uploaded previously. You may then edit the relationships
 
 
 # HTTP Request: GET
@@ -146,4 +154,23 @@ neo4j-driver
     - From google drive home and Carboncopies account: Shared drives -> Education -> Roadmap Visualization
 - Returns Drive ID for identification and can be used to provide or forward a user to the link to access the drive document
     - ex. https://docs.google.com/spreadsheets/d/1S-pgXzgBnGjssH7wIpwcie87AxgYQRRO_7rCwlS6MB0/
-    - the drive is publicly accessible for anyone, regardless of affiliation with the organization
+        - "1S-pgXzgBnGjssH7wIpwcie87AxgYQRRO_7rCwlS6MB0" part of the URL is the important part to parse out for backend consumption
+    - the sheet is publicly accessible for anyone, regardless of affiliation with the organization
+
+
+# Env File Keys
+# Neo4j Operations
+NEO4J_PROTOCOL= <YOUR PROTOCOL>
+NEO4J_HOST = <NEO4J HOST>
+NEO4J_USERNAME = <USERNAME>
+NEO4J_PASSWORD = <PASSWORD>
+NEO4J_PORT= <PORT>
+## for driver/session
+NEO4J_URI= <NEO4J URI>
+NEO4J_DATABASE= <DATABASE NAME>
+
+# Google Drive Operations
+CLIENT_ID, 
+CLIENT_SECRET, 
+REFRESH_TOKEN,
+GOOGLE_SHARED_DRIVE_ID= <Parent Drive>
