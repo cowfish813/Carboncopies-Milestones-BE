@@ -26,26 +26,37 @@ oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
 router.put('/:drive_id/', async (req, res) => {
     const id = req.params.drive_id;
     const url = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
-    const props = {url, uuid: uuidv4()};
+    const props = {url};
     const cypherCSV = `LOAD CSV WITH HEADERS FROM $url AS csv
         WITH csv 
-        WHERE csv.milestone_id IS NOT NULL
-        MERGE (m:Milestone {milestone_id: csv.milestone_id})
-        SET m.effort = csv.effort,
-            m.fullHumanWBE = csv.fullHumanWBE,
-            m.halfway = csv.halfway,
-            m.lessThanHalfway = csv.lessThanHalfway,
-            m.milestone_id = csv.milestone_id,
-            m.name = csv.name,
-            m.nearFinished = csv.nearFinished,	
-            m.nearFuture = csv.nearFuture, 
-            m.overHalfway = csv.overHalfway,
-            m.presentState = csv.presentState,
-            m.property = csv.property,
-            m.purpose = csv.purpose,
-            m.updated_at = datetime()
-    ` //may require additional properties on spreadsheet header
-        //avoid anything that begins with "_" as a header. ex. _id, _labels
+        WHERE csv.purpose IS NOT NULL
+        MERGE (m:Milestone {milestone_id: coalesce(csv.milestone_id, apoc.create.uuid())})
+        ON MATCH 
+            SET m.effort = csv.effort,
+                m.fullHumanWBE = csv.fullHumanWBE,
+                m.halfway = csv.halfway,
+                m.lessThanHalfway = csv.lessThanHalfway,
+                m.nearFinished = csv.nearFinished,	
+                m.nearFuture = csv.nearFuture, 
+                m.overHalfway = csv.overHalfway,
+                m.presentState = csv.presentState,
+                m.property = csv.property,
+                m.purpose = csv.purpose,
+                m.updated_at = datetime()
+        ON CREATE 
+            SET m.effort = csv.effort,
+                m.fullHumanWBE = csv.fullHumanWBE,
+                m.halfway = csv.halfway,
+                m.lessThanHalfway = csv.lessThanHalfway,
+                m.nearFinished = csv.nearFinished,	
+                m.nearFuture = csv.nearFuture, 
+                m.overHalfway = csv.overHalfway,
+                m.presentState = csv.presentState,
+                m.property = csv.property,
+                m.purpose = csv.purpose,
+                m.created_at = datetime()
+    ` ; //Merges based on unique milestone_id or creates a seperate one
+            //Filter => MUST fill out purpose
 
     const cypherRelationship = `
         LOAD CSV WITH HEADERS FROM $url AS csv
@@ -65,7 +76,7 @@ router.put('/:drive_id/', async (req, res) => {
         )
         YIELD rel
         RETURN rel
-    `
+    `;
 
     const session = driver.session();
     
@@ -77,11 +88,10 @@ router.put('/:drive_id/', async (req, res) => {
         session.close();
     } catch (e) {
         console.log('error:', e);
+            //may require additional error handling
+                //must be made known that purpose MUST be filled out
     }
-}); //can I assign new milestone_id? currently have bug that assigns the same id for all new nodes
-        //with null node, can i call for a new milestone node instead by importing the model?
-            //i'd still run into the problem. new node is only called once
-                //how do i call a new UUID in cypher?
+}); 
 
 //upload to google drive
 router.get('/csv', async (req, res) => {

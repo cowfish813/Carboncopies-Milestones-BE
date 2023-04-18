@@ -1,9 +1,9 @@
 ## Tech Stack 
-Node.js, Express.js, Neo4j, axios, fast-csv(?)
+Node.js, Express.js, Neo4j, Cypher, AuraDB, axios, Google Drive
 
 # Included Libraries
 UUID
-neo4j-driver
+Google API
 
 ## To start Backend Server from terminal
 1. Navigate inside Backend Folder
@@ -23,13 +23,13 @@ neo4j-driver
 5. enter 'npm run start:dev' into terminal in main directory of Backend
     - this will create the backend server on port 5001. You are now free to hit the API routes
 
-## Routes
-    - local routes can be achieved on postman or Frontend framework of choice as...
 
 
+# Milestone APIs
+- These routes will reference the retrieval, creation, patching, and destruction of nodes and their relationships
 
 ## Create - HTTP Request: POST
-# Route:localhost:5001/api/milestones
+### Route:localhost:5001/api/milestones
 - returns ID upon success
     - duration/probability edited by editor
         - hand keyed by user as "string" data
@@ -47,6 +47,8 @@ neo4j-driver
         "nearFinished": "content",
         "fullHumanWBE": "content"
     }
+    - Effort refers to an integer value between 1 and 3
+
 # Route:localhost:5001/api/milestones/:id
 - Creates new Milestone with reference to its previous milestone
 - :id is a wildcard and is a reference point to attach a new milestone as its successor
@@ -117,7 +119,7 @@ neo4j-driver
 - in development
 
 
-# Spreadsheet Routes
+### Spreadsheet Routes
 - These routes refer to interaction with the shared organization Google Drive in the subfolders Shared drives -> Education -> Roadmap Visualization
 - To get it working, it will require additional properties to the ".env" file including...
     CLIENT_ID
@@ -132,15 +134,15 @@ neo4j-driver
 ## Route localhost:5001/api/spreadsheet/:drive_id/
 - This route takes in an argument that is the driveID for the sheet.
     - The driveID can be identified from the link of an existing document in the shared drive Roadmap Visualization
-        - ex: https://docs.google.com/spreadsheets/d/1S-pgXzgBnGjssH7wIpwcie87AxgYQRRO_7rCwlS6MB0/edit#gid=348246882
-            - the ID in this example is "1S-pgXzgBnGjssH7wIpwcie87AxgYQRRO_7rCwlS6MB0"
-        - the example route will look like "localhost:5001/api/spreadsheet/1S-pgXzgBnGjssH7wIpwcie87AxgYQRRO_7rCwlS6MB0"
+        - the following is a clicked link for an unspecified file in google drive 
+            - ex.: https://docs.google.com/spreadsheets/d/DRIVE_ID/edit#gid=348246882
+            - the example route will look like "localhost:5001/api/spreadsheet/DRIVE_ID"
 - contains 2 cypher queries.
     - cypherCSV will parse the argument link and create nodes
     - cypherRelationship parses the argument for 3 specific headers listed below in the bottom right side of the spreadsheet as _start, _end, _type => first node, successive node, relationship name
 - Users are allowed to edit or add to any part of the spreadsheet except adding a new header property or "label". The code is not designed to take in new header information at this time
 - When editing the document AT THIS TIME: 
-    - milestone_id column values MUST BE UNIQUE
+    - Purpose column MUST be filled out
 - When editing relationships in the _start, _end, and _type columns
     - _start: the unique _id of the PRECEDESing node
     - _end: the unique _id successive node
@@ -153,24 +155,24 @@ neo4j-driver
 - Downloads entire databse and Uploads to google share drive
     - From google drive home and Carboncopies account: Shared drives -> Education -> Roadmap Visualization
 - Returns Drive ID for identification and can be used to provide or forward a user to the link to access the drive document
-    - ex. https://docs.google.com/spreadsheets/d/1S-pgXzgBnGjssH7wIpwcie87AxgYQRRO_7rCwlS6MB0/
-        - "1S-pgXzgBnGjssH7wIpwcie87AxgYQRRO_7rCwlS6MB0" part of the URL is the important part to parse out for backend consumption
+    - ex. https://docs.google.com/spreadsheets/d/DRIVE_ID/
+        - "DRIVE_ID" part of the URL is the important part to parse out for backend consumption
     - the sheet is publicly accessible for anyone, regardless of affiliation with the organization
 
 
 # Env File Keys
 # Neo4j Operations
-NEO4J_PROTOCOL= <YOUR PROTOCOL>
-NEO4J_HOST = <NEO4J HOST>
-NEO4J_USERNAME = <USERNAME>
-NEO4J_PASSWORD = <PASSWORD>
-NEO4J_PORT= <PORT>
+NEO4J_PROTOCOL= YOUR PROTOCOL
+NEO4J_HOST = NEO4J HOST
+NEO4J_USERNAME = USERNAME
+NEO4J_PASSWORD = PASSWORD
+NEO4J_PORT= PORT
 ## for driver/session
-NEO4J_URI= <NEO4J URI>
-NEO4J_DATABASE= <DATABASE NAME>
+NEO4J_URI= NEO4J URI
+NEO4J_DATABASE= DATABASE NAME
 
 # Google Drive Operations
 CLIENT_ID, 
 CLIENT_SECRET, 
 REFRESH_TOKEN,
-GOOGLE_SHARED_DRIVE_ID= <Parent Drive>
+GOOGLE_SHARED_DRIVE_ID= Parent Drive
