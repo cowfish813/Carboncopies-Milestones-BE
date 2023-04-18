@@ -23,13 +23,13 @@ Google API
 5. enter 'npm run start:dev' into terminal in main directory of Backend
     - this will create the backend server on port 5001. You are now free to hit the API routes
 
-## Routes
-    - local routes can be achieved on postman or Frontend framework of choice as...
 
 
+# Milestone APIs
+- These routes will reference the retrieval, creation, patching, and destruction of nodes and their relationships
 
 ## Create - HTTP Request: POST
-# Route:localhost:5001/api/milestones
+### Route:localhost:5001/api/milestones
 - returns ID upon success
     - duration/probability edited by editor
         - hand keyed by user as "string" data
@@ -47,6 +47,8 @@ Google API
         "nearFinished": "content",
         "fullHumanWBE": "content"
     }
+    - Effort refers to an integer value between 1 and 3
+    
 # Route:localhost:5001/api/milestones/:id
 - Creates new Milestone with reference to its previous milestone
 - :id is a wildcard and is a reference point to attach a new milestone as its successor

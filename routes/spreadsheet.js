@@ -29,13 +29,12 @@ router.put('/:drive_id/', async (req, res) => {
     const props = {url, uuid: uuidv4()};
     const cypherCSV = `LOAD CSV WITH HEADERS FROM $url AS csv
         WITH csv 
-        WHERE csv.milestone_id IS NOT NULL
+        WHERE csv.milestone_id IS NOT NULL 
         MERGE (m:Milestone {milestone_id: csv.milestone_id})
         SET m.effort = csv.effort,
             m.fullHumanWBE = csv.fullHumanWBE,
             m.halfway = csv.halfway,
             m.lessThanHalfway = csv.lessThanHalfway,
-            m.milestone_id = csv.milestone_id,
             m.name = csv.name,
             m.nearFinished = csv.nearFinished,	
             m.nearFuture = csv.nearFuture, 
@@ -44,8 +43,16 @@ router.put('/:drive_id/', async (req, res) => {
             m.property = csv.property,
             m.purpose = csv.purpose,
             m.updated_at = datetime()
-    ` //may require additional properties on spreadsheet header
-        //avoid anything that begins with "_" as a header. ex. _id, _labels
+            m.milestone_id = CASE
+                WHEN csv.milestone_id IS NULL THEN apoc.create.uuidBase64()
+                ELSE m.milestone_id = csv.milestone_id
+    ` //test this 4/17-5.04pm
+        //put req.
+            //step1
+                //download new sheeet
+            //s2
+                //add a node and then hit this PUT req. 
+            
 
     const cypherRelationship = `
         LOAD CSV WITH HEADERS FROM $url AS csv
@@ -78,10 +85,7 @@ router.put('/:drive_id/', async (req, res) => {
     } catch (e) {
         console.log('error:', e);
     }
-}); //can I assign new milestone_id? currently have bug that assigns the same id for all new nodes
-        //with null node, can i call for a new milestone node instead by importing the model?
-            //i'd still run into the problem. new node is only called once
-                //how do i call a new UUID in cypher?
+}); 
 
 //upload to google drive
 router.get('/csv', async (req, res) => {
