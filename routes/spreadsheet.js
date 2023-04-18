@@ -26,33 +26,40 @@ oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
 router.put('/:drive_id/', async (req, res) => {
     const id = req.params.drive_id;
     const url = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
-    const props = {url, uuid: uuidv4()};
+    const props = {url};
     const cypherCSV = `LOAD CSV WITH HEADERS FROM $url AS csv
         WITH csv 
-        WHERE csv.milestone_id IS NOT NULL 
-        MERGE (m:Milestone {milestone_id: csv.milestone_id})
-        SET m.effort = csv.effort,
-            m.fullHumanWBE = csv.fullHumanWBE,
-            m.halfway = csv.halfway,
-            m.lessThanHalfway = csv.lessThanHalfway,
-            m.name = csv.name,
-            m.nearFinished = csv.nearFinished,	
-            m.nearFuture = csv.nearFuture, 
-            m.overHalfway = csv.overHalfway,
-            m.presentState = csv.presentState,
-            m.property = csv.property,
-            m.purpose = csv.purpose,
-            m.updated_at = datetime()
-            m.milestone_id = CASE
-                WHEN csv.milestone_id IS NULL THEN apoc.create.uuidBase64()
-                ELSE m.milestone_id = csv.milestone_id
-    ` //test this 4/17-5.04pm
-        //put req.
-            //step1
-                //download new sheeet
-            //s2
-                //add a node and then hit this PUT req. 
-            
+        WHERE csv.purpose IS NOT NULL
+        MERGE (m:Milestone {milestone_id: coalesce(csv.milestone_id, apoc.create.uuid())})
+        ON MATCH 
+            SET m.effort = csv.effort,
+                m.fullHumanWBE = csv.fullHumanWBE,
+                m.halfway = csv.halfway,
+                m.lessThanHalfway = csv.lessThanHalfway,
+                m.name = csv.name,
+                m.nearFinished = csv.nearFinished,	
+                m.nearFuture = csv.nearFuture, 
+                m.overHalfway = csv.overHalfway,
+                m.presentState = csv.presentState,
+                m.property = csv.property,
+                m.purpose = csv.purpose,
+                m.updated_at = datetime()
+        ON CREATE 
+            SET m.effort = csv.effort,
+                m.fullHumanWBE = csv.fullHumanWBE,
+                m.halfway = csv.halfway,
+                m.lessThanHalfway = csv.lessThanHalfway,
+                m.name = csv.name,
+                m.nearFinished = csv.nearFinished,	
+                m.nearFuture = csv.nearFuture, 
+                m.overHalfway = csv.overHalfway,
+                m.presentState = csv.presentState,
+                m.property = csv.property,
+                m.purpose = csv.purpose,
+                m.created_at = datetime()
+    ` ; // created 2 new nodes
+            //gave me 6
+            //why is it giving me extra nodes?
 
     const cypherRelationship = `
         LOAD CSV WITH HEADERS FROM $url AS csv
@@ -72,14 +79,14 @@ router.put('/:drive_id/', async (req, res) => {
         )
         YIELD rel
         RETURN rel
-    `
+    `;
 
     const session = driver.session();
     
     try {
         const result = await session.run(cypherCSV, props);
-        const rel = await session.run(cypherRelationship, props);
-        res.send({result, rel})
+        // const rel = await session.run(cypherRelationship, props);
+        res.send({result, })
 
         session.close();
     } catch (e) {
