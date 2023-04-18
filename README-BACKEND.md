@@ -48,7 +48,7 @@ Google API
         "fullHumanWBE": "content"
     }
     - Effort refers to an integer value between 1 and 3
-    
+
 # Route:localhost:5001/api/milestones/:id
 - Creates new Milestone with reference to its previous milestone
 - :id is a wildcard and is a reference point to attach a new milestone as its successor
@@ -142,7 +142,7 @@ Google API
     - cypherRelationship parses the argument for 3 specific headers listed below in the bottom right side of the spreadsheet as _start, _end, _type => first node, successive node, relationship name
 - Users are allowed to edit or add to any part of the spreadsheet except adding a new header property or "label". The code is not designed to take in new header information at this time
 - When editing the document AT THIS TIME: 
-    - milestone_id column values MUST BE UNIQUE
+    - Purpose column MUST be filled out
 - When editing relationships in the _start, _end, and _type columns
     - _start: the unique _id of the PRECEDESing node
     - _end: the unique _id successive node

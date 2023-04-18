@@ -36,7 +36,6 @@ router.put('/:drive_id/', async (req, res) => {
                 m.fullHumanWBE = csv.fullHumanWBE,
                 m.halfway = csv.halfway,
                 m.lessThanHalfway = csv.lessThanHalfway,
-                m.name = csv.name,
                 m.nearFinished = csv.nearFinished,	
                 m.nearFuture = csv.nearFuture, 
                 m.overHalfway = csv.overHalfway,
@@ -49,7 +48,6 @@ router.put('/:drive_id/', async (req, res) => {
                 m.fullHumanWBE = csv.fullHumanWBE,
                 m.halfway = csv.halfway,
                 m.lessThanHalfway = csv.lessThanHalfway,
-                m.name = csv.name,
                 m.nearFinished = csv.nearFinished,	
                 m.nearFuture = csv.nearFuture, 
                 m.overHalfway = csv.overHalfway,
@@ -57,9 +55,8 @@ router.put('/:drive_id/', async (req, res) => {
                 m.property = csv.property,
                 m.purpose = csv.purpose,
                 m.created_at = datetime()
-    ` ; // created 2 new nodes
-            //gave me 6
-            //why is it giving me extra nodes?
+    ` ; //Merges based on unique milestone_id or creates a seperate one
+            //Filter => MUST fill out purpose
 
     const cypherRelationship = `
         LOAD CSV WITH HEADERS FROM $url AS csv
@@ -85,12 +82,14 @@ router.put('/:drive_id/', async (req, res) => {
     
     try {
         const result = await session.run(cypherCSV, props);
-        // const rel = await session.run(cypherRelationship, props);
-        res.send({result, })
+        const rel = await session.run(cypherRelationship, props);
+        res.send({result, rel})
 
         session.close();
     } catch (e) {
         console.log('error:', e);
+            //may require additional error handling
+                //must be made known that purpose MUST be filled out
     }
 }); 
 
