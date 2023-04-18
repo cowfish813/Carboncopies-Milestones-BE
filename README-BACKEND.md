@@ -49,16 +49,16 @@ Google API
     }
     - Effort refers to an integer value between 1 and 3
 
-# Route:localhost:5001/api/milestones/:id
+### Route:localhost:5001/api/milestones/:id
 - Creates new Milestone with reference to its previous milestone
 - :id is a wildcard and is a reference point to attach a new milestone as its successor
     - :id PRECEDES new Milestone 
 
 ## Read - HTTP Request: GET 
-# Route: localhost:5001/api/milestones/all
+### Route: localhost:5001/api/milestones/all
     - entire list of all Milestones
     - EXCLUDES submilestones at this time
-# Route: localhost:5001/api/milestones
+### Route: localhost:5001/api/milestones
     - Milestones with relationships
     - EXCLUDES submilestones at this time
 - Example output
@@ -96,30 +96,28 @@ Google API
             endNodeElementId = Successive Node
             Properties = Information carried on the node
 
-# Route: localhost:5001/api/milestones/:milestone_id
+### Route: localhost:5001/api/milestones/:milestone_id
 - Returns unique milestone, based on params/ID in the URL, and all of its chain of relationships
 -  All appropriate nodes fall within the records array of objects
 
 ## Update - HTTP Request - PATCH
-# Route:localhost:5001/api/milestones/:milestone_id
+### Route:localhost:5001/api/milestones/:milestone_id
 - Add properties to selected Milestone. This route DOES NOT include relationships at this time
-# Route:localhost:5001/api/milestones/:id1/:id2
+### Route:localhost:5001/api/milestones/:id1/:id2
 - The first id (id1) will identify as the milestone that PRECEDES the second argument
 
 ## Destroy - HTTP Request - DELETE
-# Route:localhost:5001/api/milestones/:milestone_id
+### Route:localhost:5001/api/milestones/:milestone_id
 - Deletes milestones and its relationships
-
-# HTTP Request: DELETE 
-# Route:localhost:5001/api/milestones/rel/:id1/:id2
+### Route:localhost:5001/api/milestones/rel/:id1/:id2
 - Deletes Relationship
 
-# Route:localhost:5001/api/milestones/all
+### Route:localhost:5001/api/milestones/all
 - deletes ALL milestones
 - in development
 
 
-### Spreadsheet Routes
+# Spreadsheet Routes
 - These routes refer to interaction with the shared organization Google Drive in the subfolders Shared drives -> Education -> Roadmap Visualization
 - To get it working, it will require additional properties to the ".env" file including...
     CLIENT_ID
@@ -129,9 +127,8 @@ Google API
     GOOGLE_SHARED_DRIVE_ID = The ID of folder to save CSVs of our database
 - more information on using OAuth 2.0 to access Google APIs can be found here https://developers.google.com/identity/protocols/oauth2
 
-
-# HTTP Request: PUT
-## Route localhost:5001/api/spreadsheet/:drive_id/
+## HTTP Request: PUT
+### Route localhost:5001/api/spreadsheet/:drive_id/
 - This route takes in an argument that is the driveID for the sheet.
     - The driveID can be identified from the link of an existing document in the shared drive Roadmap Visualization
         - the following is a clicked link for an unspecified file in google drive 
@@ -150,8 +147,8 @@ Google API
         - TIP: to avoid confusion, download complete the spreadsheet GET request. The database will assign unique _id values to any node that was uploaded previously. You may then edit the relationships
 
 
-# HTTP Request: GET
-# Route localhost:5001/api/spreadsheet/
+## HTTP Request: GET
+### Route localhost:5001/api/spreadsheet/
 - Downloads entire databse and Uploads to google share drive
     - From google drive home and Carboncopies account: Shared drives -> Education -> Roadmap Visualization
 - Returns Drive ID for identification and can be used to provide or forward a user to the link to access the drive document
