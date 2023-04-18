@@ -1,9 +1,15 @@
 ## Tech Stack 
-Node.js, Express.js, Neo4j, Cypher, AuraDB, axios, Google Drive
+- Node.js
+- Express.js
+- Neo4j
+- Cypher
+- AuraDB
+- axios
+- Google Drive
 
 # Included Libraries
-UUID
-Google API
+- UUID
+- Google API
 
 ## To start Backend Server from terminal
 1. Navigate inside Backend Folder
