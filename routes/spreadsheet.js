@@ -1,3 +1,5 @@
+const { requiresAuth } = require('express-openid-connect');
+
 const express = require('express');
 const router = express.Router();
 const neo4j = require('neo4j-driver');
