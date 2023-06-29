@@ -1,16 +1,17 @@
-const { requiresAuth } = require('express-openid-connect');
+const { auth, requiresAuth } = require('express-openid-connect');
 
 const express = require('express');
+const app = express();
 const router = express.Router();
 const neo4j = require('neo4j-driver');
 const Milestone = require('../models/milestone');
-
 const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;
 const driver = new neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
 
 router.get('/', async  (req, res) => { // ALL NODES with relationship: PRECEDES
     const cypher = 'MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone) RETURN m,r,n';
     const session = driver.session();
+    console.log(req.oidc.isAuthenticated());
     try {
         const result = await session.run(cypher);
         const milestoneArr = [];

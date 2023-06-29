@@ -9,19 +9,17 @@ const { AUTH0_CLIENT_SECRET,
         issuerBaseURL
     } = process.env;
 
-const authentication = {
-    authRequired: false,
-    auth0Logout: true,
-    // issuerBaseURL: 'http://localhost:5001/', //check line 30 of .env file
-    baseURL: 'http://localhost:5001/', 
-    clientID: AUTH0_CLIENT_ID,
-    secret: AUTH0_CLIENT_SECRET,
-    issuerBaseURL
-    // secret: '26d04d1a7f7bf7ce0f992070e9c9cdecd0790805ce252da050670da43e707d43' 
-        //generated from openssl rand -hex 32 in command line.
-};
+// const config = {
+//     authRequired: false,
+//     auth0Logout: true,
+//     // issuerBaseURL: 'http://localhost:5001/', //check line 30 of .env file
+//     baseURL: 'http://localhost:5001/', 
+//     clientID: AUTH0_CLIENT_ID,
+//     secret: AUTH0_CLIENT_SECRET,
+//     issuerBaseURL
+// };
 
-app.use(auth(authentication));
+// app.use(auth(config));
 
 // An oidc object containing the user is added to `req` by express-openid-connect
 // router.post('/:course/enrol', requiresAuth(), async (req, res, next) => {
@@ -64,6 +62,9 @@ router.get('/', (req, res, next) => {
     res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out')
 });
 
+app.get('/profile', requiresAuth(), (req, res) => {
+  res.send(JSON.stringify(req.oidc.user));
+});
 
 router.post('/', requiresAuth(), async (req, res, next) => {
     //return session token(?)
