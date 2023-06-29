@@ -7,7 +7,11 @@ const { NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD } = process.env;
 const driver = new neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
 
 router.get('/', async  (req, res) => { // ALL NODES with relationship: PRECEDES
-    const cypher = 'MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone) RETURN m,r,n';
+    const cypher = `MATCH (m: Milestone)
+        OPTIONAL MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone)
+        RETURN m, collect(r) AS relationships
+        `
+    // 'MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone) RETURN m,r,n';
     const session = driver.session();
     try {
         const result = await session.run(cypher);
