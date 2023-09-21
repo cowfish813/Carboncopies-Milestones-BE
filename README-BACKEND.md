@@ -154,7 +154,7 @@
 
 
 ## HTTP Request: GET
-### Route localhost:5001/api/spreadsheet/
+### Route localhost:5001/api/spreadsheet/csv
 - Downloads entire databse and Uploads to google share drive
     - From google drive home and Carboncopies account: Shared drives -> Education -> Roadmap Visualization
 - Returns Drive ID for identification and can be used to provide or forward a user to the link to access the drive document
