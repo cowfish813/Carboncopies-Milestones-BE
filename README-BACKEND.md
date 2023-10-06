@@ -65,42 +65,52 @@
     - entire list of all Milestones
     - EXCLUDES submilestones at this time
 ### Route: localhost:5001/api/milestones
-    - Milestones with relationships
+    - Inclusive of all relationships for MILESTONE labels
     - EXCLUDES submilestones at this time
 - Example output
     ```
     [
         [
-            Node {
-            identity: [Integer],
-            labels: [Array],
-            properties: [Object],
-            elementId: '4:633d82dd-2b89-48b1-8146-10c2b6fb7e10:27'
+            {
+                identity: [Integer],
+                labels: [Array],
+                properties: [Object],
+                elementId: '4:633d82dd-2b89-48b1-8146-10c2b6fb7e10:27'
             },
-            Relationship {
-            identity: [Integer],
-            start: [Integer],
-            end: [Integer],
-            type: 'PRECEDES',
-            properties: {},
-            elementId: '5:633d82dd-2b89-48b1-8146-10c2b6fb7e10:1',
-            startNodeElementId: '4:633d82dd-2b89-48b1-8146-10c2b6fb7e10:27',
-            endNodeElementId: '4:633d82dd-2b89-48b1-8146-10c2b6fb7e10:28'
+            {
+                identity: [Integer],
+                start: [Integer],
+                end: [Integer],
+                type: 'PRECEDES',
+                properties: {},
+                elementId: '5:633d82dd-2b89-48b1-8146-10c2b6fb7e10:1',
+                startNodeElementId: '4:633d82dd-2b89-48b1-8146-10c2b6fb7e10:27',
+                endNodeElementId: '4:633d82dd-2b89-48b1-8146-10c2b6fb7e10:28'
             },
-            Node {
-            identity: [Integer],
-            labels: [Array],
-            properties: [Object],
-            elementId: '4:633d82dd-2b89-48b1-8146-10c2b6fb7e10:28'
+            {
+                identity: [Integer],
+                labels: [Array],
+                properties: [Object],
+                elementId: '4:633d82dd-2b89-48b1-8146-10c2b6fb7e10:28'
             }
+        ],
+        
+        [
+            {
+                identity: [Integer],
+                labels: [Array],
+                properties: [Object],
+            },
+            []
         ],
     ]
     ```
     - Returned element is an array of arrays
-        - each subarray contains 2 nodes and their relationship. The relationship element will contain information on the hierarchy of nodes
+        - each subarray, if it has a relationship, contains 2 nodes and their relationship. The relationship element will contain information on the hierarchy of nodes
             startNodeElementId = Parent Node
             endNodeElementId = Successive Node
             Properties = Information carried on the node
+        - Nodes without the specified relationship are represented as an array with 2 elements
 
 ### Route: localhost:5001/api/milestones/:milestone_id
 - Returns unique milestone, based on params/ID in the URL, and all of its chain of relationships
