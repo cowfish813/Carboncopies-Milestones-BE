@@ -25,3 +25,4 @@ app.listen(port, () => console.log(`Server is running on port ${port}`));
 app.use(express.json());
 app.use('/api/milestones', milestones);
 app.use('/api/spreadsheet', spreadsheet);
+app.use('/api/users', users);

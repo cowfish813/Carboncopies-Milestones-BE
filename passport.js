@@ -20,8 +20,9 @@ passport.use(new GoogleStrategy({
     },
 
     function(accessToken, refreshToken, profile, done) {
-        userProfile=profile;
+        userProfile = profile;
         return done(null, userProfile);
+        console.log(accessToken);
     }
 ));
 
@@ -32,3 +33,5 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(user, done) {
     done(null, user);
 });
+
+module.exports = passport;
