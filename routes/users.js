@@ -14,62 +14,106 @@ const isLoggedIn = (req, res, next) => {
     } else {
         res.sendStatus(401);
     }
-}
+} //How is this used? ^^copy pasta from another link
 
-router.get('/google', () => { // Google Auth consent screen route
-  console.log('test')
-  passport.authenticate('google', {
-    scope:
-      ['email', 'profile']
-  })
-})
+// Initiate the Google OAuth flow
+router.get('/auth/google', passport.authenticate('google', 
+    { scope: ['profile', 'email'] }));
 
-// 
-// Call back route
-router.get('/google/callback',
+
+// Callback after Google has authenticated the user
+app.get('/auth/google/callback', 
     passport.authenticate('google', {
-        failureRedirect: '/failed',
-    }),
-    (req, res) => {
-        res.redirect('/success');
-    }
+        
+        successRedirect: '/profile',
+        failureRedirect: '/fail'
+    })
 );
 
-// failed route if the authentication fails
-router.get("/failed", (req, res) => {
-    console.log('User is not authenticated');
-    res.send("Failed");
-});
+router.delete('/logout', function (req, res) {
+        req.logOut();
+        res.redirect('/');
+    });
+// router.get('/auth/google/callback',
+//     passport.authenticate('google', { failureRedirect: '/error' }),
+//     (req, res) => {
+//         console.log("hello authentication(?)");
+//         // Successful authentication, redirect to success route
+//         res.redirect('/success');
+//     });
 
-// Success route if the authentication is successful
-router.get("/success", isLoggedIn, (req, res) => {
-    console.log('You are logged in');
-    res.send(`Welcome ${req.user.displayName}`);
-});
+// router.get('/auth/google', async (q_, s_) => { // Google Auth consent screen route
+// //   console.log('test')
+//   passport.authenticate('google', {
+//     scope:
+//       ['email', 'profile']
+//   })
+  
+//   try {
+//     console.log('hello', passport)
+//     // console.log(res);
+//     // res.send(res);
+    
+//   } catch (err) {
+//     console.log(err)
+//   }
+// })
 
-// 
-router.post('/', (req, res) => { //login
-  //force logout if not validated?
-})
+// // Call back route. console log says this should run next 
+// // but how do i make that work?
 
-// protected route. obtain user info(?)
-router.get('/current', (req, res) => {
+// app.get('/auth/google/callback', 
+//     passport.authenticate('google', { failureRedirect: '/error' }),
+//     function(req, res) {
+//     // Successful authentication, redirect success.
+//     console.log('hmmm?');
+//     res.redirect('/success');
+// });
+// // router.get('/google/callback',
+// //     passport.authenticate('google', {
+// //         failureRedirect: '/failed',
+// //     }),
+// //     (req, res) => {
+// //         res.redirect('/success');
+// //     }
+// // );
 
-})
+// // failed route if the authentication fails
+// router.get("/failed", async (req, res) => {
+//     console.log('User is not authenticated');
+//     res.send("Failed");
+// });
 
-//log out
-router.delete('/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-        console.log('Error while destroying session:', err);
-    } else {
-        req.logout(() => {
-            console.log('You are logged out');
-            res.redirect('/home');
-        });
-    }
-  });
-})
+// // Success route if the authentication is successful
+// router.get("/success", isLoggedIn, (req, res) => {
+//     console.log('You are logged in');
+//     res.send(`Welcome ${req.user.displayName}`);
+// });
+
+// // 
+// router.post('/', async (req, res) => { //login
+//   //force logout if not validated?
+// })
+
+// // protected route. obtain user info(?)
+// router.get('/current', async (req, res) => {
+
+// })
+
+// //log out
+// router.delete('/logout', async (req, res) => {
+//   req.session.destroy((err) => {
+//     if (err) {
+//         console.log('Error while destroying session:', err);
+//     } else {
+//         req.logout(() => {
+//             console.log('You are logged out');
+//             res.redirect('/home');
+//         });
+//     }
+//   });
+// })
+
 module.exports = router;
 
 // app.get('/auth/google', 
