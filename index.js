@@ -26,3 +26,13 @@ app.use(express.json());
 app.use('/api/milestones', milestones);
 app.use('/api/spreadsheet', spreadsheet);
 app.use('/api/users', users);
+
+// Callback after Google has authenticated the user. route can not change
+app.get('/auth/google/callback', 
+    passport.authenticate('google', {
+        // console.log("stuff")
+        failureRedirect: '/login', 
+        successRedirect: '/ok, we need to know where to go',
+        failureMessage: true 
+    })
+);

@@ -22,42 +22,12 @@ router.get('/auth/google', passport.authenticate('google',
 
 
 // Callback after Google has authenticated the user
-app.get('/auth/google/callback', 
-    passport.authenticate('google', {
-        
-        successRedirect: '/profile',
-        failureRedirect: '/fail'
-    })
-);
+
 
 router.delete('/logout', function (req, res) {
         req.logOut();
         res.redirect('/');
     });
-// router.get('/auth/google/callback',
-//     passport.authenticate('google', { failureRedirect: '/error' }),
-//     (req, res) => {
-//         console.log("hello authentication(?)");
-//         // Successful authentication, redirect to success route
-//         res.redirect('/success');
-//     });
-
-// router.get('/auth/google', async (q_, s_) => { // Google Auth consent screen route
-// //   console.log('test')
-//   passport.authenticate('google', {
-//     scope:
-//       ['email', 'profile']
-//   })
-  
-//   try {
-//     console.log('hello', passport)
-//     // console.log(res);
-//     // res.send(res);
-    
-//   } catch (err) {
-//     console.log(err)
-//   }
-// })
 
 // // Call back route. console log says this should run next 
 // // but how do i make that work?
