@@ -27,12 +27,22 @@ app.use('/api/milestones', milestones);
 app.use('/api/spreadsheet', spreadsheet);
 app.use('/api/users', users);
 
-// Callback after Google has authenticated the user. route can not change
+// Callback after Google has authenticated the user. 
+    //route corresponds to passport callbackURL
 app.get('/auth/google/callback', 
     passport.authenticate('google', {
-        // console.log("stuff")
         failureRedirect: '/login', 
-        successRedirect: '/ok, we need to know where to go',
+        successRedirect: '/api/milestones', //can change this route for redirect
         failureMessage: true 
     })
 );
+
+passport.serializeUser(function(user, done) {
+    console.log(user);
+    done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+    console.log(user);
+    done(null, user);
+});

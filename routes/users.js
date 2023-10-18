@@ -16,82 +16,25 @@ const isLoggedIn = (req, res, next) => {
     }
 } //How is this used? ^^copy pasta from another link
 
+router.get('/loggedin', (req, res, next) => {
+
+    console.log(req);
+    if (req.user) {
+        next();
+    } else {
+        console.log('nope');
+        res.sendStatus(401);
+    }
+})
+
 // Initiate the Google OAuth flow
 router.get('/auth/google', passport.authenticate('google', 
     { scope: ['profile', 'email'] }));
 
-
-// Callback after Google has authenticated the user
-
-
-router.delete('/logout', function (req, res) {
-        req.logOut();
-        res.redirect('/');
-    });
-
-// // Call back route. console log says this should run next 
-// // but how do i make that work?
-
-// app.get('/auth/google/callback', 
-//     passport.authenticate('google', { failureRedirect: '/error' }),
-//     function(req, res) {
-//     // Successful authentication, redirect success.
-//     console.log('hmmm?');
-//     res.redirect('/success');
-// });
-// // router.get('/google/callback',
-// //     passport.authenticate('google', {
-// //         failureRedirect: '/failed',
-// //     }),
-// //     (req, res) => {
-// //         res.redirect('/success');
-// //     }
-// // );
-
-// // failed route if the authentication fails
-// router.get("/failed", async (req, res) => {
-//     console.log('User is not authenticated');
-//     res.send("Failed");
-// });
-
-// // Success route if the authentication is successful
-// router.get("/success", isLoggedIn, (req, res) => {
-//     console.log('You are logged in');
-//     res.send(`Welcome ${req.user.displayName}`);
-// });
-
-// // 
-// router.post('/', async (req, res) => { //login
-//   //force logout if not validated?
-// })
-
-// // protected route. obtain user info(?)
-// router.get('/current', async (req, res) => {
-
-// })
-
-// //log out
-// router.delete('/logout', async (req, res) => {
-//   req.session.destroy((err) => {
-//     if (err) {
-//         console.log('Error while destroying session:', err);
-//     } else {
-//         req.logout(() => {
-//             console.log('You are logged out');
-//             res.redirect('/home');
-//         });
-//     }
-//   });
-// })
+//log out
+    // router.delete('/logout', function (req, res) {
+//         req.logOut();
+//         res.redirect('/');
+//     });
 
 module.exports = router;
-
-// app.get('/auth/google', 
-//     passport.authenticate('google', { scope : ['profile', 'email'] }));
-
-// app.get('/auth/google/callback', 
-//     passport.authenticate('google', { failureRedirect: '/error' }),
-//     function(req, res) {
-//     // Successful authentication, redirect success.
-//     res.redirect('/success');
-// });

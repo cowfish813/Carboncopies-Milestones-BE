@@ -15,20 +15,26 @@ passport.use(new GoogleStrategy({
     },
 
     function(accessToken, refreshToken, profile, done) {
-        console.log(profile);
-
-        userProfile = profile;
-        return done(null, userProfile);
+        const email = profile.emails[0].value;
+        const verified = profile.emails[0].verified;
+        const emailExtension = email.split('@')[1] === 'carboncopies.org';
+        if (verified && emailExtension) { 
+                //can user auth hinge on this single if statement?
+            // what is done?
+                //create user via cypher?
+            userProfile = profile;
+            return done(null, userProfile);
+        } else {
+            'do what?'
+        }
     }
 ));
 
 passport.serializeUser(function(user, done) {
-    console.log('serializing user');
     done(null, user);
 });
 
 passport.deserializeUser(function(user, done) {
-    console.log('deserializing user');
     done(null, user);
 });
 
