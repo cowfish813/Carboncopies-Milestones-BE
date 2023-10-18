@@ -11,6 +11,7 @@ router.get('/', async  (req, res) => { // ALL NODES with relationship: PRECEDES 
         OPTIONAL MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone)
         RETURN m, collect(r) AS relationships
         `
+
     const session = driver.session();
     try {
         const result = await session.run(cypher);
@@ -55,18 +56,22 @@ router.get('/:milestone_id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => { //create single Milestone
-    const session = driver.session();
-    const cypher = 'CREATE (m:Milestone $props) RETURN m';
-    const newMilestone = new Milestone (req.body);
-    const props = {props: newMilestone};
-
-    try {
-        const result = await session.run(cypher, props);
-        res.json(result);
-        session.close();
-    } 
-    catch (err) {
-        res.status(404).json(err);
+    if (req.isAuthenticated()) {
+        const session = driver.session();
+        const cypher = 'CREATE (m:Milestone $props) RETURN m';
+        const newMilestone = new Milestone (req.body);
+        const props = {props: newMilestone};
+    
+        try {
+            const result = await session.run(cypher, props);
+            res.json(result);
+            session.close();
+        } 
+        catch (err) {
+            res.status(404).json(err);
+        }
+    } else {
+        res.redirect('/');
     }
 });
 
