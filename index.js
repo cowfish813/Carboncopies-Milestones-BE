@@ -10,13 +10,19 @@ app.use(cors());
 
 const session = require('express-session');
 const passport = require('passport');
-require('./passport');
+require('./passport'); //do i need this?
 
-app.use(session({
+const sessOptions = {
     secret: process.env.SECRET,
     resave: false,
-    saveUninitialized: true
-}));
+    saveUninitialized: true,
+}
+
+if (app.get('env') === 'production') {
+    app.set('trust proxy', 1) //trust first proxy
+    sessOptions.cookie.secure = true; //might not work
+}
+app.use(session(sessOptions));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -33,7 +39,7 @@ app.use('/api/users', users);
 app.get('/auth/google/callback', 
     passport.authenticate('google', {
         failureRedirect: '/login', 
-        successRedirect: '/', //can change this route for redirect
+        successRedirect: '/api/users/profile', //can change this route for redirect
         failureMessage: true 
     })
 );
