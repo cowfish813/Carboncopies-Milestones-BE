@@ -11,11 +11,14 @@ router.get('/auth/google', passport.authenticate('google',
     { scope: ['profile', 'email'] }));
 
 //log out
-router.get('/logout', function (req, res) {
-    console.log(req.isAuthenticated());
-    req.logOut();
-    console.log(req.isAuthenticated());
-    res.redirect('/');
+router.get('/logout', (req, res, next) => {
+    req.logOut((err) => {
+        if (err) {
+            return next(err)
+        } else {
+            res.redirect('/');
+        }
+    });
 });
 
 const users = router;

@@ -32,17 +32,7 @@ app.use('/api/users', users);
 app.get('/auth/google/callback', 
     passport.authenticate('google', {
         failureRedirect: '/login', 
-        successRedirect: '/api/milestones', //can change this route for redirect
+        successRedirect: '/api/users/', //can change this route for redirect
         failureMessage: true 
     })
 );
-
-passport.serializeUser(function(user, done) {
-    console.log(user);
-    done(null, user);
-});
-
-passport.deserializeUser(function(user, done) {
-    console.log(user);
-    done(null, user);
-});

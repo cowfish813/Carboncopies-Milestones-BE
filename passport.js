@@ -25,7 +25,7 @@ passport.use(new GoogleStrategy({
             userProfile = profile;
             return done(null, userProfile);
         } else {
-            'do what?'
+            console.log('do what?');
         }
     }
 ));
