@@ -26,7 +26,7 @@ router.get('/', async  (req, res) => { // ALL NODES with relationship: PRECEDES 
             res.status(500).send(err);
         }
     // } else {
-    //     console.log('nope')
+    //     console.log('nope');
     // }
 });
 

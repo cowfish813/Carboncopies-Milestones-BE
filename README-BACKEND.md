@@ -172,6 +172,19 @@
         - "DRIVE_ID" part of the URL is the important part to parse out for backend consumption
     - the sheet is publicly accessible for anyone, regardless of affiliation with the organization
 
+# User Routes
+## HTTP Request: GET
+### Route localhost:5001/api/users/auth/google
+- Validates and allows login from carboncopies email accounts
+    - Route will redirect user to default google splash login page
+- Does not allow login from other email accounts
+    - Access blocked: milestones can only be used within its organization
+    
+## HTTP Request: DELETE
+### Route localhost:5001/api/users/logout
+- End User Session
+
+
 
 # Env File Keys
 ## Neo4j Operations

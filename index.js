@@ -29,10 +29,11 @@ app.use('/api/users', users);
 
 // Callback after Google has authenticated the user. 
     //route corresponds to passport callbackURL
+        //can i put this somewhere else? seems ugly.
 app.get('/auth/google/callback', 
     passport.authenticate('google', {
         failureRedirect: '/login', 
-        successRedirect: '/api/users/', //can change this route for redirect
+        successRedirect: '/', //can change this route for redirect
         failureMessage: true 
     })
 );

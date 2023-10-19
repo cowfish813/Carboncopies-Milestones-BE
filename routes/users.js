@@ -11,7 +11,7 @@ router.get('/auth/google', passport.authenticate('google',
     { scope: ['profile', 'email'] }));
 
 //log out
-router.get('/logout', (req, res, next) => {
+router.delete('/logout', (req, res, next) => {
     req.logOut((err) => {
         if (err) {
             return next(err)
