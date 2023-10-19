@@ -11,7 +11,7 @@ router.get('/', async  (req, res) => { // ALL NODES with relationship: PRECEDES 
         OPTIONAL MATCH (m: Milestone)-[r:PRECEDES]->(n:Milestone)
         RETURN m, collect(r) AS relationships
         `
-    if (req.isAuthenticated()) {
+    // if (req.isAuthenticated()) {
     const session = driver.session();
         try {
             const result = await session.run(cypher);
@@ -25,9 +25,9 @@ router.get('/', async  (req, res) => { // ALL NODES with relationship: PRECEDES 
             console.log(err);
             res.status(500).send(err);
         }
-    } else {
-        console.log('nope')
-    }
+    // } else {
+    //     console.log('nope')
+    // }
 });
 
 router.get('/all', async (req, res) => { // ALL nodes
