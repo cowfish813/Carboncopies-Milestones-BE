@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express();
-
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const {GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET} = process.env;
@@ -19,8 +18,8 @@ passport.use(new GoogleStrategy({
         const verified = profile.emails[0].verified;
         const emailExtension = email.split('@')[1] === 'carboncopies.org';
         if (verified && emailExtension) { 
-                //can user auth hinge on this single if statement?
-            // what is done?
+                //can user auth hinge on this single 'if' statement?
+            // what else is done?
                 //create user via cypher?
             userProfile = profile;
             return done(null, userProfile);

@@ -7,20 +7,23 @@ const users = require('./routes/users.js');
 const app = express();
 const cors = require('cors');
 app.use(cors());
-
 const session = require('express-session');
 const passport = require('passport');
-require('./passport'); //do i need this?
+// require('./passport'); //do i need this?
 
 const sessOptions = {
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true,
+    rolling: true,
+    cookie: { maxAge: 60000 }
 }
 
 if (app.get('env') === 'production') {
     app.set('trust proxy', 1) //trust first proxy
-    sessOptions.cookie.secure = true; //might not work
+    sessOptions.cookie.secure = true; 
+        //serve secure cookies
+            //might not work, will depend on HTTPS settings
 }
 app.use(session(sessOptions));
 app.use(passport.initialize());
@@ -38,8 +41,8 @@ app.use('/api/users', users);
         //can i put this somewhere else? seems ugly.
 app.get('/auth/google/callback', 
     passport.authenticate('google', {
-        failureRedirect: '/login', 
-        successRedirect: '/api/users/profile', //can change this route for redirect
+        failureRedirect: '/', 
+        successRedirect: '/where should users go at login?', //can change this route for redirect
         failureMessage: true 
     })
 );

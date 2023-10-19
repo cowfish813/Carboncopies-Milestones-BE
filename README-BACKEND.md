@@ -1,15 +1,14 @@
 ## Tech Stack 
 - Node.js
 - Express.js
+    - Express Session
+- Passport.js
 - Neo4j
 - Cypher
 - AuraDB
-- axios
-- Google Drive
-
-# Included Libraries
-- UUID
-- Google API
+- Google 
+    - Google Drive
+    - Google Oauth
 
 ## To start Backend Server from terminal
 1. Navigate inside Backend Folder
@@ -110,7 +109,7 @@
             startNodeElementId = Parent Node
             endNodeElementId = Successive Node
             Properties = Information carried on the node
-        - Nodes without the specified relationship are represented as an array with 2 elements
+        - Nodes without the specified relationship are represented as an array with 2 elements as seen in the second subarray element
 
 ### Route: localhost:5001/api/milestones/:milestone_id
 - Returns unique milestone, based on params/ID in the URL, and all of its chain of relationships
@@ -187,8 +186,6 @@
 ## HTTP Request: DELETE
 ### Route localhost:5001/api/users/logout
 - End User Session
-
-
 
 # Env File Keys
 ## Neo4j Operations
