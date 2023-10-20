@@ -12,7 +12,7 @@ router.get('/', async  (req, res) => { // ALL NODES with relationship: PRECEDES 
         RETURN m, collect(r) AS relationships
         `
     // if (req.isAuthenticated()) {
-    const session = driver.session();
+        const session = driver.session();
         try {
             const result = await session.run(cypher);
             const milestoneArr = [];
