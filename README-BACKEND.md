@@ -1,15 +1,14 @@
 ## Tech Stack 
 - Node.js
 - Express.js
+    - Express Session
+- Passport.js
 - Neo4j
 - Cypher
 - AuraDB
-- axios
-- Google Drive
-
-# Included Libraries
-- UUID
-- Google API
+- Google 
+    - Google Drive
+    - Google Oauth
 
 ## To start Backend Server from terminal
 1. Navigate inside Backend Folder
@@ -110,7 +109,7 @@
             startNodeElementId = Parent Node
             endNodeElementId = Successive Node
             Properties = Information carried on the node
-        - Nodes without the specified relationship are represented as an array with 2 elements
+        - Nodes without the specified relationship are represented as an array with 2 elements as seen in the second subarray element
 
 ### Route: localhost:5001/api/milestones/:milestone_id
 - Returns unique milestone, based on params/ID in the URL, and all of its chain of relationships
@@ -172,6 +171,21 @@
         - "DRIVE_ID" part of the URL is the important part to parse out for backend consumption
     - the sheet is publicly accessible for anyone, regardless of affiliation with the organization
 
+# User Routes
+## HTTP Request: GET
+### Route localhost:5001/api/users/auth/google
+- LOGIN ROUTE: Validates and allows login from carboncopies email accounts
+    - Route will redirect user to default google splash login page
+- Does not allow login from other email accounts
+    - Access blocked: milestones can only be used within its organization
+
+## HTTP Request: GET
+### Route localhost:5001/api/users/
+- retrieves profile information
+
+## HTTP Request: DELETE
+### Route localhost:5001/api/users/logout
+- End User Session
 
 # Env File Keys
 ## Neo4j Operations
