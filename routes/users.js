@@ -1,6 +1,7 @@
 const express = require('express');
 const passport = require('../util/passport');
 const router = express.Router();
+const neo4j = require('neo4j-driver');
 
 // Initiate the Google OAuth flow
 router.get('/auth/google', passport.authenticate('google', 
@@ -28,6 +29,10 @@ router.delete('/logout', (req, res, next) => {
     req.session.destroy();
     res.send('Logout Succesful');
 });
+
+router.post('/', async (req, res) => {
+
+})
 
 const users = router;
 module.exports = users;
