@@ -1,5 +1,5 @@
 const express = require('express');
-const passport = require('../passport');
+const passport = require('../util/passport');
 const router = express.Router();
 
 // Initiate the Google OAuth flow

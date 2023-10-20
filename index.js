@@ -9,7 +9,7 @@ const cors = require('cors');
 app.use(cors());
 const session = require('express-session');
 const passport = require('passport');
-require('./passport'); // initializes passport file
+require('./util/passport.js'); // initializes passport file
 
 const sessOptions = {
     secret: process.env.SECRET,
@@ -41,7 +41,7 @@ app.use('/api/users', users);
 app.get('/auth/google/callback', 
     passport.authenticate('google', {
         failureRedirect: '/', 
-        successRedirect: '/api/milestones', //can change this route for redirect
+        successRedirect: '/api/users/profile', //can change this route for redirect
         // successRedirect: '/where should users go at login?', //can change this route for redirect
         failureMessage: true 
     })
