@@ -9,7 +9,7 @@ const cors = require('cors');
 app.use(cors());
 const session = require('express-session');
 const passport = require('passport');
-// require('./passport'); //do i need this?
+require('./passport'); // initializes passport file
 
 const sessOptions = {
     secret: process.env.SECRET,
@@ -38,11 +38,11 @@ app.use('/api/users', users);
 
 // Callback after Google has authenticated the user. 
     //route corresponds to passport callbackURL
-        //can i put this somewhere else? seems ugly.
 app.get('/auth/google/callback', 
     passport.authenticate('google', {
         failureRedirect: '/', 
-        successRedirect: '/where should users go at login?', //can change this route for redirect
+        successRedirect: '/api/milestones', //can change this route for redirect
+        // successRedirect: '/where should users go at login?', //can change this route for redirect
         failureMessage: true 
     })
 );

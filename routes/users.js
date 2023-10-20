@@ -14,22 +14,19 @@ router.get('/profile', async (req, res) => {
             const displayName = req.session.passport.user.displayName
             const email = req.session.passport.user.emails[0].value
             const photos = req.session.passport.user.photos
-            const result = {id, displayName, email, photos};
-            res.send(result);
+            const profile = {id, displayName, email, photos};
+            res.status(200).json(profile)
         } 
     } catch (err) {
-        console.log('fail');
         res.status(404).json(err);
-        console.log(res);
     }
 })
 
 //log out
 router.delete('/logout', (req, res, next) => {
-    req.logOut((err) => {
-        if (err) return next(err);
-        res.redirect('/');
-    });
+    req.logOut();
+    req.session.destroy();
+    res.send('Logout Succesful');
 });
 
 const users = router;

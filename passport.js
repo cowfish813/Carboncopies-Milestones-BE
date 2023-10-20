@@ -10,7 +10,8 @@ app.use(passport.session());
 passport.use(new GoogleStrategy({
         clientID: GOOGLE_OAUTH_CLIENT_ID,
         clientSecret: GOOGLE_OAUTH_CLIENT_SECRET,
-        callbackURL: "http://localhost:5001/auth/google/callback"
+        callbackURL: "http://localhost:5001/auth/google/callback"   
+            //will need to change cbURL to domain
     },
 
     function(accessToken, refreshToken, profile, done) {
@@ -18,13 +19,9 @@ passport.use(new GoogleStrategy({
         const verified = profile.emails[0].verified;
         const emailExtension = email.split('@')[1] === 'carboncopies.org';
         if (verified && emailExtension) { 
-                //can user auth hinge on this single 'if' statement?
-            // what else is done?
-                //create user via cypher?
+            // create user in database
             userProfile = profile;
-            return done(null, userProfile);
-        } else {
-            console.log('do what?');
+            return done(nullgit add , userProfile);
         }
     }
 ));
