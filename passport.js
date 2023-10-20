@@ -21,7 +21,7 @@ passport.use(new GoogleStrategy({
         if (verified && emailExtension) { 
             // create user in database
             userProfile = profile;
-            return done(nullgit add , userProfile);
+            return done(null, userProfile);
         }
     }
 ));
