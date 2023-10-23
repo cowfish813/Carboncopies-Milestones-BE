@@ -15,6 +15,8 @@ const {
 const driver = new neo4j.driver(NEO4J_URI, 
     neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
+
+//these 2 might be affecting google drive API author
 const oAuth2Client = new google.auth.OAuth2(
     CLIENT_ID, 
     CLIENT_SECRET, 
