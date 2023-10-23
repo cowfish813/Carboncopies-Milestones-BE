@@ -10,7 +10,7 @@ app.use(passport.session());
 passport.use(new GoogleStrategy({
         clientID: GOOGLE_OAUTH_CLIENT_ID,
         clientSecret: GOOGLE_OAUTH_CLIENT_SECRET,
-        callbackURL: "http://localhost:5001/auth/google/callback"   
+        callbackURL: "/auth/google/callback"   
             //will need to change cbURL to domain
     },
 
